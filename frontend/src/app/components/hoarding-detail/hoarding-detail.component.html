@@ -1,0 +1,109 @@
+<div class="hoarding-detail-container">
+  <div class="header">
+    <button class="back-btn" (click)="goBack()">
+      &larr; Back to Hoardings
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading details...</p>
+  </div>
+
+  <div *ngIf="error" class="error-state">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && !error && hoarding" class="content-wrapper">
+    <div class="image-section">
+      <img [src]="hoarding.primary_image ? (backendUrl + hoarding.primary_image) : 'assets/placeholder.png'" 
+           alt="{{ hoarding.name }}" 
+           class="hero-image" 
+           onerror="this.src='assets/placeholder.png'"/>
+      <div class="status-badge" [class.available]="hoarding.availability_status === 'AVAILABLE'" [class.booked]="hoarding.availability_status !== 'AVAILABLE'">
+        {{ hoarding.availability_status === 'AVAILABLE' ? 'Available Now' : 'Currently Booked' }}
+      </div>
+    </div>
+    
+    <div class="info-section">
+      <h1 class="title">{{ hoarding.name }}</h1>
+      <p class="location"><i class="fas fa-map-marker-alt"></i> {{ hoarding.location_name }}</p>
+
+      <div class="pricing-card">
+        <div class="price">
+          <span class="currency">₹</span>
+          <span class="amount">{{ hoarding.amount | number }}</span>
+          <span class="period">/ month</span>
+        </div>
+        <button class="book-btn" [disabled]="hoarding.availability_status !== 'AVAILABLE'" (click)="bookHoarding()">
+          {{ hoarding.availability_status === 'AVAILABLE' ? 'Purchase / Inquire' : 'Not Available' }}
+        </button>
+      </div>
+
+      <div class="details-section">
+        <h2>About this hoarding</h2>
+        <p class="description">{{ hoarding.description || 'No description available for this hoarding.' }}</p>
+        
+        <div class="meta-grid">
+          <div class="meta-item">
+            <span class="label">Owned By</span>
+            <span class="value">{{ hoarding.client_name || 'N/A' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">Status</span>
+            <span class="value">{{ hoarding.status }}</span>
+          </div>
+          <div class="meta-item" *ngIf="hoarding.latitude && hoarding.longitude">
+            <span class="label">Coordinates</span>
+            <span class="value">{{ hoarding.latitude }}, {{ hoarding.longitude }}</span>
+          </div>
+          <div class="meta-item" *ngIf="hoarding.occupied_till">
+            <span class="label">Occupied Till</span>
+            <span class="value">{{ hoarding.occupied_till | date }}</span>
+          </div>
+        </div>
+
+        <a *ngIf="hoarding.google_maps_url" [href]="hoarding.google_maps_url" target="_blank" class="maps-link">
+          View on Google Maps <i class="fas fa-external-link-alt"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Booking Modal -->
+<div class="modal-overlay" *ngIf="isBookingModalOpen">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Book / Enquire: {{ hoarding?.name }}</h3>
+      <button class="close-btn" (click)="closeBookingModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body" *ngIf="!bookingSuccess">
+      <p style="margin-bottom: 20px; color: #555;">Please provide your details below. Our team will contact you to finalize the purchase and you will be registered as a client.</p>
+      
+      <form (ngSubmit)="submitBooking()" #form="ngForm">
+        <div class="form-group">
+          <label>Your Name *</label>
+          <input type="text" name="name" [(ngModel)]="bookingForm.name" required>
+        </div>
+        <div class="form-group">
+          <label>Email Address *</label>
+          <input type="email" name="email" [(ngModel)]="bookingForm.email" required>
+        </div>
+        <div class="form-group">
+          <label>Phone Number *</label>
+          <input type="tel" name="phone" [(ngModel)]="bookingForm.phone" required>
+        </div>
+        <button type="submit" class="submit-btn" [disabled]="!form.valid">Submit Inquiry</button>
+      </form>
+    </div>
+
+    <div class="modal-body success-state" *ngIf="bookingSuccess">
+      <div class="success-icon">✓</div>
+      <h4>Inquiry Submitted!</h4>
+      <p>Thank you for your interest. We have received your details and will contact you very soon.</p>
+      <button class="submit-btn" (click)="closeBookingModal()">Close</button>
+    </div>
+  </div>
+</div>
