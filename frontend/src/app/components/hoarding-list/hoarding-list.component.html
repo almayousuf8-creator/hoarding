@@ -33,40 +33,117 @@
     <p>Explore premium hoardings across Kerala and beyond.</p>
     
     <div class="filter-card">
-      <div class="filter-group">
-        <label>State</label>
-        <select [(ngModel)]="selectedStateId" (change)="onStateChange()">
-          <option [ngValue]="null">Select State</option>
-          <option *ngFor="let state of states" [ngValue]="state.id">{{ state.name }}</option>
-        </select>
+      <!-- STATE DROPDOWN -->
+      <div class="filter-group" [class.active-dropdown]="openDropdown === 'state'">
+        <label class="filter-label">
+          <svg class="label-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span>State</span>
+        </label>
+        
+        <div class="dropdown-box" (click)="toggleDropdown('state', $event)" [class.has-value]="selectedStateId">
+          <span class="selected-text" [class.placeholder]="!selectedStateId">{{ getSelectedStateName() }}</span>
+          <svg class="dropdown-chevron" [class.rotated]="openDropdown === 'state'" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+
+        <!-- Custom Dropdown Menu -->
+        <div class="dropdown-menu" *ngIf="openDropdown === 'state'">
+          <div class="dropdown-item" [class.selected]="!selectedStateId" (click)="selectState(null, $event)">
+            <span>All States</span>
+            <svg *ngIf="!selectedStateId" class="check-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <div class="dropdown-item" *ngFor="let state of states" [class.selected]="selectedStateId === state.id" (click)="selectState(state.id, $event)">
+            <span>{{ state.name }}</span>
+            <svg *ngIf="selectedStateId === state.id" class="check-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+        </div>
       </div>
       
       <div class="filter-divider"></div>
 
-      <div class="filter-group">
-        <label>District</label>
-        <select [(ngModel)]="selectedDistrictId" (change)="onDistrictChange()" [disabled]="!selectedStateId">
-          <option [ngValue]="null">Select District</option>
-          <option *ngFor="let district of districts" [ngValue]="district.id">{{ district.name }}</option>
-        </select>
+      <!-- DISTRICT DROPDOWN -->
+      <div class="filter-group" [class.active-dropdown]="openDropdown === 'district'" [class.is-disabled]="!selectedStateId">
+        <label class="filter-label">
+          <svg class="label-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+          <span>District</span>
+        </label>
+
+        <div class="dropdown-box" (click)="toggleDropdown('district', $event)" [class.has-value]="selectedDistrictId" [class.disabled]="!selectedStateId" [title]="!selectedStateId ? 'Please select a state first' : ''">
+          <span class="selected-text" [class.placeholder]="!selectedDistrictId">{{ getSelectedDistrictName() }}</span>
+          <svg class="dropdown-chevron" [class.rotated]="openDropdown === 'district'" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+
+        <!-- Custom Dropdown Menu -->
+        <div class="dropdown-menu" *ngIf="openDropdown === 'district'">
+          <div class="dropdown-item" [class.selected]="!selectedDistrictId" (click)="selectDistrict(null, $event)">
+            <span>All Districts</span>
+            <svg *ngIf="!selectedDistrictId" class="check-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <div class="dropdown-item" *ngFor="let district of districts" [class.selected]="selectedDistrictId === district.id" (click)="selectDistrict(district.id, $event)">
+            <span>{{ district.name }}</span>
+            <svg *ngIf="selectedDistrictId === district.id" class="check-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <div class="dropdown-empty" *ngIf="districts.length === 0">No districts found</div>
+        </div>
       </div>
 
       <div class="filter-divider"></div>
 
-      <div class="filter-group">
-        <label>Location</label>
-        <select [(ngModel)]="selectedLocationId" (change)="onLocationChange()" [disabled]="!selectedDistrictId">
-          <option [ngValue]="null">Select Location</option>
-          <option *ngFor="let location of locations" [ngValue]="location.id">{{ location.name }}</option>
-        </select>
+      <!-- LOCATION DROPDOWN -->
+      <div class="filter-group" [class.active-dropdown]="openDropdown === 'location'" [class.is-disabled]="!selectedDistrictId">
+        <label class="filter-label">
+          <svg class="label-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v3m0 14v3M2 12h3m14 0h3" />
+          </svg>
+          <span>Location</span>
+        </label>
+
+        <div class="dropdown-box" (click)="toggleDropdown('location', $event)" [class.has-value]="selectedLocationId" [class.disabled]="!selectedDistrictId" [title]="!selectedDistrictId ? 'Please select a district first' : ''">
+          <span class="selected-text" [class.placeholder]="!selectedLocationId">{{ getSelectedLocationName() }}</span>
+          <svg class="dropdown-chevron" [class.rotated]="openDropdown === 'location'" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+
+        <!-- Custom Dropdown Menu -->
+        <div class="dropdown-menu" *ngIf="openDropdown === 'location'">
+          <div class="dropdown-item" [class.selected]="!selectedLocationId" (click)="selectLocation(null, $event)">
+            <span>All Locations</span>
+            <svg *ngIf="!selectedLocationId" class="check-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <div class="dropdown-item" *ngFor="let location of locations" [class.selected]="selectedLocationId === location.id" (click)="selectLocation(location.id, $event)">
+            <span>{{ location.name }}</span>
+            <svg *ngIf="selectedLocationId === location.id" class="check-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <div class="dropdown-empty" *ngIf="locations.length === 0">No locations found</div>
+        </div>
       </div>
 
-      <button class="search-btn" (click)="loadHoardings()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z" fill="white"/>
-        </svg>
-        Search
-      </button>
+      <!-- ACTION BUTTONS -->
+      <div class="filter-actions">
+        <button class="search-btn" (click)="loadHoardings()" id="hero-search-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>Search</span>
+        </button>
+        <button *ngIf="selectedStateId || selectedDistrictId || selectedLocationId" class="reset-btn" (click)="resetFilters()" title="Reset all filters">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -77,7 +154,7 @@
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 8px;">
         <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="#1e8449"/>
       </svg>
-      Hoardings <span class="light-text">in Ernakulam</span>
+      Hoardings <span class="light-text">in {{ getLocationHeading() }}</span>
     </h2>
     <p class="subtitle">Showing {{ hoardings.length }} hoardings</p>
   </div>

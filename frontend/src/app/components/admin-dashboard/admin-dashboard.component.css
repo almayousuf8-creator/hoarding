@@ -577,21 +577,38 @@
 }
 
 .form-group input,
-.form-group select,
 .form-group textarea {
   padding: 10px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
   font-size: 14px;
   color: #1f2937;
   outline: none;
   background-color: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+.form-group select {
+  padding: 10px 36px 10px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1f2937;
+  outline: none;
+  background-color: #ffffff;
+  transition: all 0.2s ease;
 }
 
 .form-group input:focus,
-.form-group select:focus,
 .form-group textarea:focus {
   border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  background-color: white;
+}
+
+.form-group select:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
   background-color: white;
 }
 

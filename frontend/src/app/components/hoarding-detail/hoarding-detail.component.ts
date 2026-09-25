@@ -89,4 +89,13 @@ export class HoardingDetailComponent implements OnInit {
   goBack(): void {
     this.router.navigate(['/public']);
   }
+
+  copied: boolean = false;
+  copyLink(): void {
+    if (navigator?.clipboard) {
+      navigator.clipboard.writeText(window.location.href);
+      this.copied = true;
+      setTimeout(() => this.copied = false, 2000);
+    }
+  }
 }

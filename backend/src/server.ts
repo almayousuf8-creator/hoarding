@@ -11,9 +11,28 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Simple test route
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Backend is running' });
+import pool from './config/db';
+
+// Simple test route with DB health check
+app.get('/api/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({
+      status: 'ok',
+      message: 'Backend is running and Database is connected',
+      database: {
+        status: 'connected',
+        name: process.env.DB_NAME || 'hoarding',
+        host: process.env.DB_HOST || '127.0.0.1'
+      }
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Database connection failed',
+      error: err.message
+    });
+  }
 });
 
 import authRoutes from './routes/auth';
@@ -34,6 +53,13 @@ app.use('/api/images', imageRoutes);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
+  try {
+    const connection = await pool.getConnection();
+    console.log(`Database connected successfully to "${process.env.DB_NAME || 'hoarding'}" on ${process.env.DB_HOST || '127.0.0.1'}:${process.env.DB_PORT || '3306'}`);
+    connection.release();
+  } catch (error: any) {
+    console.error(`Database connection failed:`, error.message);
+  }
 });

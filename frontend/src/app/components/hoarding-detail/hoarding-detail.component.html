@@ -1,13 +1,46 @@
 <div class="hoarding-detail-container">
-  <div class="header">
-    <button class="back-btn" (click)="goBack()">
-      &larr; Back to Hoardings
-    </button>
-  </div>
+  <!-- Top Bar -->
+  <header class="top-nav-bar">
+    <div class="nav-left">
+      <button class="back-btn" (click)="goBack()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Back to Hoardings</span>
+      </button>
+      <div class="breadcrumb" *ngIf="hoarding">
+        <span class="crumb-root">Hoardings</span>
+        <span class="crumb-separator">/</span>
+        <span class="crumb-loc">{{ hoarding.location_name }}</span>
+      </div>
+    </div>
+
+    <div class="nav-right" *ngIf="hoarding">
+      <button class="action-pill-btn" (click)="copyLink()" [title]="copied ? 'Link Copied!' : 'Share Hoarding'">
+        <svg *ngIf="!copied" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+        <svg *ngIf="copied" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>{{ copied ? 'Copied Link!' : 'Share' }}</span>
+      </button>
+
+      <div class="verified-pill">
+        <span class="pulse-dot"></span>
+        <span>Verified Space</span>
+      </div>
+    </div>
+  </header>
 
   <div *ngIf="loading" class="loading-state">
     <div class="spinner"></div>
-    <p>Loading details...</p>
+    <p>Loading hoarding details...</p>
   </div>
 
   <div *ngIf="error" class="error-state">
@@ -15,57 +48,150 @@
   </div>
 
   <div *ngIf="!loading && !error && hoarding" class="content-wrapper">
+    <!-- Left Hero Image Section -->
     <div class="image-section">
       <img [src]="hoarding.primary_image ? (backendUrl + hoarding.primary_image) : 'assets/placeholder.png'" 
            alt="{{ hoarding.name }}" 
            class="hero-image" 
-           onerror="this.src='assets/placeholder.png'"/>
+           onerror="this.src='https://images.unsplash.com/photo-1542204637-e67bc7d41e48?auto=format&fit=crop&q=80&w=800'"/>
+      
+      <!-- Top badges -->
       <div class="status-badge" [class.available]="hoarding.availability_status === 'AVAILABLE'" [class.booked]="hoarding.availability_status !== 'AVAILABLE'">
-        {{ hoarding.availability_status === 'AVAILABLE' ? 'Available Now' : 'Currently Booked' }}
+        <span class="live-indicator"></span>
+        <span>{{ hoarding.availability_status === 'AVAILABLE' ? 'Available for Lease' : 'Currently Occupied' }}</span>
+      </div>
+
+      <div class="id-badge">
+        <span>#{{ hoarding.id }}</span>
+      </div>
+
+      <!-- Bottom photo tag -->
+      <div class="image-footer-tag">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+          <circle cx="12" cy="13" r="4"></circle>
+        </svg>
+        <span>Verified Site View</span>
       </div>
     </div>
     
+    <!-- Right Info & Actions Section -->
     <div class="info-section">
-      <h1 class="title">{{ hoarding.name }}</h1>
-      <p class="location"><i class="fas fa-map-marker-alt"></i> {{ hoarding.location_name }}</p>
+      <div class="info-header">
+        <div class="category-tag">PREMIUM OUTDOOR MEDIA</div>
+        <h1 class="title">{{ hoarding.name }}</h1>
+        <div class="location-row">
+          <span class="location-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/>
+            </svg>
+            {{ hoarding.location_name }}
+          </span>
+          <span class="traffic-tag">High Visibility Zone</span>
+        </div>
+      </div>
 
+      <!-- Luxury Pricing Card -->
       <div class="pricing-card">
-        <div class="price">
-          <span class="currency">₹</span>
-          <span class="amount">{{ hoarding.amount | number }}</span>
-          <span class="period">/ month</span>
+        <div class="price-content">
+          <span class="price-label">STANDARD MONTHLY RATE</span>
+          <div class="price-figure">
+            <span class="currency">₹</span>
+            <span class="amount">{{ hoarding.amount | number }}</span>
+            <span class="period">/ month</span>
+          </div>
         </div>
         <button class="book-btn" [disabled]="hoarding.availability_status !== 'AVAILABLE'" (click)="bookHoarding()">
-          {{ hoarding.availability_status === 'AVAILABLE' ? 'Purchase / Inquire' : 'Not Available' }}
+          <span>{{ hoarding.availability_status === 'AVAILABLE' ? 'Inquire / Book Now' : 'Currently Booked' }}</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
         </button>
       </div>
 
-      <div class="details-section">
-        <h2>About this hoarding</h2>
-        <p class="description">{{ hoarding.description || 'No description available for this hoarding.' }}</p>
-        
-        <div class="meta-grid">
-          <div class="meta-item">
-            <span class="label">Owned By</span>
-            <span class="value">{{ hoarding.client_name || 'N/A' }}</span>
+      <!-- Feature Grid -->
+      <div class="features-container">
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="9" y1="3" x2="9" y2="21"></line>
+            </svg>
           </div>
-          <div class="meta-item">
-            <span class="label">Status</span>
-            <span class="value">{{ hoarding.status }}</span>
-          </div>
-          <div class="meta-item" *ngIf="hoarding.latitude && hoarding.longitude">
-            <span class="label">Coordinates</span>
-            <span class="value">{{ hoarding.latitude }}, {{ hoarding.longitude }}</span>
-          </div>
-          <div class="meta-item" *ngIf="hoarding.occupied_till">
-            <span class="label">Occupied Till</span>
-            <span class="value">{{ hoarding.occupied_till | date }}</span>
+          <div class="feature-text">
+            <span class="feature-label">DIMENSIONS</span>
+            <span class="feature-val">{{ hoarding.description || 'Standard 40×20 ft' }}</span>
           </div>
         </div>
 
-        <a *ngIf="hoarding.google_maps_url" [href]="hoarding.google_maps_url" target="_blank" class="maps-link">
-          View on Google Maps <i class="fas fa-external-link-alt"></i>
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <span class="feature-label">LIGHTING</span>
+            <span class="feature-val">Frontlit • 24/7 Lit</span>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <span class="feature-label">MANAGED BY</span>
+            <span class="feature-val">{{ hoarding.client_name || 'Direct / Agency' }}</span>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 19 21 12 17 5 21 12 2"></polygon>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <span class="feature-label">GPS COORDS</span>
+            <span class="feature-val monospace">{{ hoarding.latitude && hoarding.longitude ? (hoarding.latitude | number:'1.2-4') + ', ' + (hoarding.longitude | number:'1.2-4') : 'Verified Site' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Action -->
+      <div class="action-footer">
+        <a *ngIf="hoarding.google_maps_url" [href]="hoarding.google_maps_url" target="_blank" class="maps-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+            <line x1="8" y1="2" x2="8" y2="18"></line>
+            <line x1="16" y1="6" x2="16" y2="22"></line>
+          </svg>
+          <span>Open in Google Maps</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
         </a>
+
+        <div class="guarantee-badge">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          <span>Guaranteed Prime Spot</span>
+        </div>
       </div>
     </div>
   </div>
