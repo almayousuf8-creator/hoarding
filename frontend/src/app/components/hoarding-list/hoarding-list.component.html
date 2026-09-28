@@ -10,6 +10,7 @@
   </div>
   <div class="center-links">
     <a (click)="scrollTo('home')" class="active" style="cursor: pointer;">Home</a>
+    <a (click)="scrollTo('results')" style="cursor: pointer;">Hoardings</a>
     <a (click)="scrollTo('about')" style="cursor: pointer;">About Us</a>
     <a (click)="scrollTo('contact')" style="cursor: pointer;">Contact</a>
   </div>
@@ -148,7 +149,7 @@
   </div>
 </div>
 
-<div class="container">
+<div class="container" id="results">
   <div class="results-header">
     <h2>
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 8px;">
@@ -208,8 +209,33 @@
 
 <div id="contact" class="contact-section">
   <div class="contact-container">
-    <h2>Get in Touch</h2>
-    <p class="contact-subtitle">Need help finding the perfect space? Our experts are here to assist you.</p>
+    <h2 style="margin-bottom: 40px;">Get in Touch</h2>
+    <div class="contact-content">
+      <div class="contact-left-col">
+        <h3 class="desc-title">Why Billboard Advertising?</h3>
+        <p class="desc-text">Billboard advertising offers unparalleled visibility and impact. By placing your brand on high-traffic routes and prominent locations, you ensure continuous impressions each day. It's an unavoidable, always-on medium that builds massive brand awareness and establishes trust at a glance.</p>
+        <p class="desc-text">Whether you choose static or digital hoardings, outdoor advertising connects with audiences in the real world when they are most receptive. Let us help you find the perfect hoarding for your campaign.</p>
+      </div>
+    
+    <div class="contact-form-card">
+      <h3 style="margin-bottom: 20px; color: #333;">Send us message</h3>
+      <form (ngSubmit)="submitLead()" #leadForm="ngForm">
+        <input type="text" placeholder="Name" [(ngModel)]="newLead.name" name="name" required class="form-input">
+        <input type="email" placeholder="E-mail id" [(ngModel)]="newLead.email" name="email" required class="form-input">
+        <select [(ngModel)]="newLead.subject" name="subject" class="form-input">
+          <option value="">Subject</option>
+          <option value="General Inquiry">General Inquiry</option>
+          <option value="Booking">Booking</option>
+          <option value="Support">Support</option>
+        </select>
+        <textarea placeholder="Message" [(ngModel)]="newLead.message" name="message" rows="4" class="form-input"></textarea>
+        <button type="submit" class="btn-send" [disabled]="!leadForm.form.valid || isSubmitting">Send</button>
+      </form>
+      <div *ngIf="leadSuccessMessage" class="success-msg">{{ leadSuccessMessage }}</div>
+      <div *ngIf="leadErrorMessage" class="error-msg">{{ leadErrorMessage }}</div>
+    </div>
+    </div>
+    
     <div class="contact-grid">
       <div class="contact-card">
         <div class="contact-icon">

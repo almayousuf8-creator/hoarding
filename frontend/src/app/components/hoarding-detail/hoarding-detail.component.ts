@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -19,11 +20,13 @@ export class HoardingDetailComponent implements OnInit {
   isBookingModalOpen: boolean = false;
   bookingForm = { name: '', email: '', phone: '' };
   bookingSuccess: boolean = false;
+  isHighlighting: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
@@ -36,6 +39,15 @@ export class HoardingDetailComponent implements OnInit {
     }
   }
 
+  getMapUrl(): SafeResourceUrl | null {
+    if (this.hoarding?.latitude && this.hoarding?.longitude) {
+      const lat = this.hoarding.latitude;
+      const lng = this.hoarding.longitude;
+      const url = `https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.01},${lat-0.01},${lng+0.01},${lat+0.01}&layer=mapnik&marker=${lat},${lng}`;
+      return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
+    return null;
+  }
   fetchHoarding(id: number): void {
     this.apiService.getHoardingById(id).subscribe({
       next: (res) => {
@@ -97,5 +109,12 @@ export class HoardingDetailComponent implements OnInit {
       this.copied = true;
       setTimeout(() => this.copied = false, 2000);
     }
+  }
+
+  highlightDetails(): void {
+    this.isHighlighting = true;
+    setTimeout(() => {
+      this.isHighlighting = false;
+    }, 1500);
   }
 }

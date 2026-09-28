@@ -25,6 +25,10 @@
       <a (click)="setActiveTab('locations')" class="nav-item" [class.active]="activeTab === 'locations'">
         <i class='bx bx-map-alt icon'></i> Locations
       </a>
+      <a (click)="setActiveTab('leads')" class="nav-item" [class.active]="activeTab === 'leads'">
+        <i class='bx bx-envelope icon'></i> Leads
+        <span *ngIf="unreadLeadsCount > 0" style="margin-left: auto; background: #ef4444; color: white; border-radius: 10px; padding: 2px 8px; font-size: 12px; font-weight: bold;">{{ unreadLeadsCount }}</span>
+      </a>
       <a (click)="setActiveTab('settings')" class="nav-item mt-auto" [class.active]="activeTab === 'settings'">
         <i class='bx bx-cog icon'></i> Settings
       </a>
@@ -137,10 +141,30 @@
         </div>
         <div class="panel table-panel">
           <div class="filters-row">
-            <select><option>All States</option></select>
-            <select><option>All Districts</option></select>
-            <select><option>All Locations</option></select>
-            <select><option>All Status</option></select>
+            <select [(ngModel)]="filterStateId" (ngModelChange)="onFilterStateChange()">
+              <option [ngValue]="null">All States</option>
+              <option *ngFor="let s of states" [ngValue]="s.id">{{ s.name }}</option>
+            </select>
+            <select [(ngModel)]="filterDistrictId" (ngModelChange)="onFilterDistrictChange()">
+              <option [ngValue]="null">All Districts</option>
+              <ng-container *ngFor="let d of districts">
+                <option *ngIf="!filterStateId || filterStateId === -1 || d.state_id === filterStateId" [ngValue]="d.id">{{ d.name }}</option>
+              </ng-container>
+            </select>
+            <select [(ngModel)]="filterLocationId">
+              <option [ngValue]="null">All Locations</option>
+              <ng-container *ngFor="let l of locations">
+                <option *ngIf="!filterDistrictId || filterDistrictId === -1 || l.district_id === filterDistrictId" [ngValue]="l.id">{{ l.name }}</option>
+              </ng-container>
+            </select>
+            <select [(ngModel)]="filterStatus">
+              <option [ngValue]="null">All Status</option>
+              <option value="AVAILABLE">Available</option>
+              <option value="OCCUPIED">Occupied</option>
+            </select>
+            <button class="action-btn-green" (click)="resetFilters()" style="padding: 8px; border-radius: 4px; display: flex; align-items: center; justify-content: center; height: 38px; width: 38px; min-width: 38px;" title="Reset Filters">
+              <i class='bx bx-refresh' style="font-size: 22px; margin: 0;"></i>
+            </button>
           </div>
           <table class="data-table">
             <thead>
@@ -151,11 +175,11 @@
                 <th>Client</th>
                 <th>Availability</th>
                 <th>Occupied Till</th>
-                <th>Actions</th>
+                <th style="text-align: center;">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let h of hoardings">
+              <tr *ngFor="let h of filteredHoardings">
                 <td>
                   <img *ngIf="h.primary_image" [src]="'http://localhost:5000' + h.primary_image" class="td-img" style="object-fit: cover;" />
                   <div *ngIf="!h.primary_image" class="td-img"></div>
@@ -384,7 +408,7 @@
             <tbody>
               <tr *ngFor="let c of clients">
                 <td>{{ c.id }}</td>
-                <td>{{ c.name }}</td>
+                <td><a href="javascript:void(0)" (click)="viewClient(c)" style="color: #3b82f6; text-decoration: underline; font-weight: 500;">{{ c.name }}</a></td>
                 <td>{{ c.phone }}</td>
                 <td>{{ c.email }}</td>
                 <td>
@@ -393,7 +417,7 @@
                 </td>
                 <td><span class="text-green" [style.color]="c.status === 'ACTIVE' ? '#10b981' : '#ef4444'">{{ c.status | titlecase }}</span></td>
                 <td class="actions">
-                  <i *ngIf="c.hoarding_name" class='bx bxs-check-circle action-icon view' (click)="openConfirmBookingModal(c)" title="Mark as Paid/Occupied" style="color: #10b981;"></i>
+                  <i class='bx bxs-show action-icon view' (click)="viewClient(c)" title="View Details" style="margin-right: 5px;"></i>
                   <i class='bx bxs-pencil action-icon edit' (click)="openClientModal(c)" title="Edit"></i> 
                   <i class='bx bxs-trash-alt action-icon delete' (click)="deleteClient(c.id)" title="Delete"></i>
                 </td>
@@ -446,11 +470,67 @@
                   </select>
                 </div>
               </div>
+              <div *ngIf="newClient.hoarding_id && newClient.status !== 'HIDDEN'" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div class="form-group">
+                  <label>Payment (Amount)</label>
+                  <input type="number" name="payment" [(ngModel)]="newClient.payment" placeholder="e.g. 50000" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+                </div>
+                <div class="form-group">
+                  <label>Occupied Till</label>
+                  <input type="date" name="occupied_till" [(ngModel)]="newClient.occupied_till" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+                </div>
+              </div>
               <div style="display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" (click)="closeClientModal()" style="padding: 8px 15px; border: 1px solid #d1d5db; background: transparent; border-radius: 4px; cursor: pointer;">Cancel</button>
                 <button type="submit" class="action-btn-green" style="padding: 8px 15px;">Save</button>
               </div>
             </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- View Client Modal -->
+      <div class="modal-overlay" *ngIf="viewingClient">
+        <div class="modal-content" style="width: 500px;">
+          <div class="modal-header">
+            <h3>Client Details</h3>
+            <button class="close-btn" (click)="closeViewClientModal()"><i class='bx bx-x'></i></button>
+          </div>
+          <div class="modal-body">
+            <div class="view-details">
+              <h2 style="margin-bottom: 15px; color: #111827; font-size: 20px;">{{ viewingClient.name }}</h2>
+              <div class="detail-grid" style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+                <div class="detail-item">
+                  <span class="label" style="display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600;">Email</span>
+                  <span class="val" style="font-weight: 500; color: #374151; font-size: 14px;">{{ viewingClient.email || 'N/A' }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label" style="display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600;">Contact Number</span>
+                  <span class="val" style="font-weight: 500; color: #374151; font-size: 14px;">{{ viewingClient.phone || 'N/A' }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label" style="display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600;">Address</span>
+                  <span class="val" style="font-weight: 500; color: #374151; font-size: 14px; white-space: pre-wrap;">{{ viewingClient.address || 'N/A' }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label" style="display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600;">Interested In (Hoarding)</span>
+                  <span *ngIf="viewingClient.hoarding_name" style="background:#e8f6ef; color:#1e8449; padding:4px 8px; border-radius:4px; font-size:13px; font-weight:500; display: inline-block;">{{ viewingClient.hoarding_name }}</span>
+                  <span *ngIf="!viewingClient.hoarding_name" style="color:#9ca3af; font-size:13px;">None</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label" style="display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600;">Status</span>
+                  <span class="text-green" [style.color]="viewingClient.status === 'ACTIVE' ? '#10b981' : '#ef4444'" style="font-weight: 600; font-size: 14px;">{{ viewingClient.status | titlecase }}</span>
+                </div>
+                <div class="detail-item" *ngIf="viewingClient.hoarding_amount">
+                  <span class="label" style="display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600;">Payment (Amount)</span>
+                  <span class="val" style="font-weight: 500; color: #374151; font-size: 14px;">₹{{ viewingClient.hoarding_amount }}</span>
+                </div>
+                <div class="detail-item" *ngIf="viewingClient.hoarding_occupied_till">
+                  <span class="label" style="display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600;">Occupied Till</span>
+                  <span class="val" style="font-weight: 500; color: #374151; font-size: 14px;">{{ viewingClient.hoarding_occupied_till | date:'dd MMM yyyy' }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -631,6 +711,86 @@
         </div>
       </div>
 
+      <!-- Leads Tab -->
+      <div *ngIf="activeTab === 'leads'" class="tab-pane">
+        <div class="content-header">
+          <div>
+            <h2>Leads / Enquiries</h2>
+            <p>Manage contact form submissions</p>
+          </div>
+        </div>
+        
+        <div class="card" style="margin-top: 20px;">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Subject</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let lead of leads" [ngStyle]="{'font-weight': lead.status === 'NEW' ? '700' : '400', 'background-color': lead.status === 'NEW' ? '#f0fdf4' : 'transparent'}">
+                  <td>{{ lead.created_at | date:'medium' }}</td>
+                  <td>{{ lead.name }}</td>
+                  <td>{{ lead.email }}</td>
+                  <td>{{ lead.subject || '-' }}</td>
+                  <td>
+                    <span class="status-badge" [ngClass]="lead.status === 'NEW' ? 'status-active' : 'status-inactive'">
+                      {{ lead.status }}
+                    </span>
+                  </td>
+                  <td class="actions">
+                    <i class='bx bxs-show action-icon view' title="View Lead" (click)="viewLead(lead)"></i>
+                    <i class='bx bxs-trash-alt action-icon delete' title="Delete Lead" (click)="deleteLead(lead.id)"></i>
+                  </td>
+                </tr>
+                <tr *ngIf="leads.length === 0">
+                  <td colspan="6" style="text-align: center; padding: 20px;">No leads found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
+  </div>
+</div>
+
+<!-- Lead Details Modal -->
+<div class="modal-overlay" *ngIf="viewingLead">
+  <div class="modal-content" style="max-width: 600px;">
+    <div class="modal-header">
+      <h2>Lead Details</h2>
+      <button class="close-btn" (click)="closeLeadModal()"><i class='bx bx-x'></i></button>
+    </div>
+    <div class="modal-body" *ngIf="viewingLead" style="padding: 20px;">
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #4b5563;">Date:</strong>
+        <p style="margin: 5px 0;">{{ viewingLead.created_at | date:'medium' }}</p>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #4b5563;">Name:</strong>
+        <p style="margin: 5px 0;">{{ viewingLead.name }}</p>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #4b5563;">Email:</strong>
+        <p style="margin: 5px 0;">{{ viewingLead.email }}</p>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #4b5563;">Subject:</strong>
+        <p style="margin: 5px 0;">{{ viewingLead.subject || 'N/A' }}</p>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <strong style="color: #4b5563;">Message:</strong>
+        <div style="margin: 5px 0; padding: 15px; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb; white-space: pre-wrap;">{{ viewingLead.message }}</div>
+      </div>
+    </div>
+
   </div>
 </div>

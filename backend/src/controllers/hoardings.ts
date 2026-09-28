@@ -8,7 +8,7 @@ export const getAll = async (req: Request, res: Response): Promise<void> => {
       (SELECT image_path FROM hoarding_images WHERE hoarding_id = h.id ORDER BY sort_order ASC LIMIT 1) as primary_image
       FROM hoardings h 
       LEFT JOIN locations l ON h.location_id = l.id 
-      LEFT JOIN clients c ON l.client_id = c.id
+      LEFT JOIN clients c ON c.hoarding_id = h.id AND c.status = 'ACTIVE'
     `);
     res.json({ success: true, data: rows });
   } catch (error) {
@@ -24,7 +24,7 @@ export const getById = async (req: Request, res: Response): Promise<void> => {
       (SELECT image_path FROM hoarding_images WHERE hoarding_id = h.id ORDER BY sort_order ASC LIMIT 1) as primary_image
       FROM hoardings h 
       LEFT JOIN locations l ON h.location_id = l.id 
-      LEFT JOIN clients c ON l.client_id = c.id
+      LEFT JOIN clients c ON c.hoarding_id = h.id AND c.status = 'ACTIVE'
       WHERE h.id = ?
     `, [req.params.id]);
     if (rows.length === 0) {

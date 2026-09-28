@@ -26,6 +26,11 @@ export class HoardingListComponent implements OnInit {
   isLoading: boolean = false;
   backendUrl = 'http://localhost:5000';
 
+  newLead: any = { name: '', email: '', subject: '', message: '' };
+  isSubmitting: boolean = false;
+  leadSuccessMessage: string = '';
+  leadErrorMessage: string = '';
+
   constructor(private apiService: ApiService) {}
 
   ngOnInit() {
@@ -99,10 +104,42 @@ export class HoardingListComponent implements OnInit {
             filtered = filtered.filter((h: any) => h.location_id == this.selectedLocationId);
           }
           this.hoardings = filtered;
+          
+          if (this.selectedStateId && this.selectedDistrictId && this.selectedLocationId) {
+            setTimeout(() => {
+              const resultsSection = document.getElementById('results');
+              if (resultsSection) {
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }, 100);
+          }
         }
       },
       error: () => {
         this.isLoading = false;
+      }
+    });
+  }
+
+  submitLead() {
+    this.isSubmitting = true;
+    this.leadSuccessMessage = '';
+    this.leadErrorMessage = '';
+    
+    this.apiService.submitLead(this.newLead).subscribe({
+      next: (res) => {
+        this.isSubmitting = false;
+        if (res.success) {
+          this.leadSuccessMessage = 'Message sent successfully! We will get back to you soon.';
+          this.newLead = { name: '', email: '', subject: '', message: '' };
+          setTimeout(() => this.leadSuccessMessage = '', 5000);
+        } else {
+          this.leadErrorMessage = res.message || 'Failed to send message.';
+        }
+      },
+      error: () => {
+        this.isSubmitting = false;
+        this.leadErrorMessage = 'An error occurred. Please try again.';
       }
     });
   }

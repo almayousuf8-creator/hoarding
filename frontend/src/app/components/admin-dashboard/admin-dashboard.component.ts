@@ -33,6 +33,7 @@ export class AdminDashboardComponent implements OnInit {
   isClientModalOpen: boolean = false;
   editingClientId: number | null = null;
   newClient: any = { name: '', email: '', phone: '', address: '', status: 'ACTIVE', hoarding_id: null };
+  viewingClient: any = null;
 
   isConfirmBookingModalOpen: boolean = false;
   confirmBookingData: any = { clientId: null, hoardingName: '', occupied_till: '' };
@@ -42,8 +43,17 @@ export class AdminDashboardComponent implements OnInit {
   editingLocationId: number | null = null;
   newLocation: any = { district_id: 1, client_id: 1, name: '', description: '', latitude: '', longitude: '', google_maps_url: '', status: 'ACTIVE' };
 
+  leads: any[] = [];
+  unreadLeadsCount: number = 0;
+  viewingLead: any = null;
+
   notifications: string[] = [];
   showNotifications: boolean = false;
+
+  filterStateId: number | null = null;
+  filterDistrictId: number | null = null;
+  filterLocationId: number | null = null;
+  filterStatus: string | null = null;
 
   newHoarding: any = {
     location_id: 1,
@@ -65,12 +75,89 @@ export class AdminDashboardComponent implements OnInit {
     this.fetchDistricts();
     this.fetchClients();
     this.fetchLocations();
+    this.fetchLeads();
+  }
+
+  fetchLeads() {
+    this.apiService.getLeads().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.leads = res.data;
+          this.unreadLeadsCount = this.leads.filter(l => l.status === 'NEW').length;
+          
+          if (this.unreadLeadsCount > 0) {
+            this.notifications = [`You have ${this.unreadLeadsCount} new lead(s)!`];
+          } else {
+            this.notifications = [];
+          }
+        }
+      },
+      error: (e) => console.error(e)
+    });
+  }
+
+  markLeadAsRead(id: number) {
+    this.apiService.markLeadRead(id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.fetchLeads();
+        }
+      }
+    });
+  }
+
+  viewLead(lead: any) {
+    this.viewingLead = lead;
+    if (lead.status === 'NEW') {
+      this.apiService.markLeadRead(lead.id).subscribe({
+        next: (res) => {
+          if (res.success) {
+            lead.status = 'READ';
+            this.fetchLeads();
+          }
+        }
+      });
+    }
+  }
+
+  closeLeadModal() {
+    this.viewingLead = null;
+  }
+
+  deleteLead(id: number) {
+    if(confirm('Are you sure you want to delete this lead?')) {
+      this.apiService.deleteLead(id).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.fetchLeads();
+          }
+        }
+      });
+    }
   }
 
   fetchHoardings() {
     this.apiService.getHoardings().subscribe({
       next: (res) => { if (res.success) this.hoardings = res.data; },
       error: (e) => console.error(e)
+    });
+  }
+
+  get filteredHoardings() {
+    return this.hoardings.filter(h => {
+      let match = true;
+      if (this.filterStatus && this.filterStatus !== 'ALL' && h.availability_status !== this.filterStatus) match = false;
+      
+      const loc = this.locations.find(l => l.id === h.location_id);
+      if (this.filterLocationId && this.filterLocationId !== -1 && loc?.id !== Number(this.filterLocationId)) match = false;
+      
+      const dist = loc ? this.districts.find(d => d.id === loc.district_id) : null;
+      if (this.filterDistrictId && this.filterDistrictId !== -1 && dist?.id !== Number(this.filterDistrictId)) match = false;
+      
+      const state = dist ? this.states.find(s => s.id === dist.state_id) : null;
+      if (this.filterStateId && this.filterStateId !== -1 && state?.id !== Number(this.filterStateId)) match = false;
+      
+      return match;
     });
   }
 
@@ -190,13 +277,30 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
+  viewClient(client: any) {
+    this.viewingClient = client;
+  }
+
+  closeViewClientModal() {
+    this.viewingClient = null;
+  }
+
   openClientModal(client?: any) {
     if (client) {
       this.editingClientId = client.id;
-      this.newClient = { name: client.name, email: client.email, phone: client.phone, address: client.address, status: client.status, hoarding_id: client.hoarding_id || null };
+      this.newClient = { 
+        name: client.name, 
+        email: client.email, 
+        phone: client.phone, 
+        address: client.address, 
+        status: client.status, 
+        hoarding_id: client.hoarding_id || null,
+        payment: client.hoarding_amount || null,
+        occupied_till: client.hoarding_occupied_till ? new Date(client.hoarding_occupied_till).toISOString().split('T')[0] : null
+      };
     } else {
       this.editingClientId = null;
-      this.newClient = { name: '', email: '', phone: '', address: '', status: 'ACTIVE', hoarding_id: null };
+      this.newClient = { name: '', email: '', phone: '', address: '', status: 'ACTIVE', hoarding_id: null, payment: null, occupied_till: null };
     }
     this.isClientModalOpen = true;
   }
@@ -208,12 +312,20 @@ export class AdminDashboardComponent implements OnInit {
   saveClient() {
     if (this.editingClientId) {
       this.apiService.updateClient(this.editingClientId, this.newClient).subscribe({
-        next: () => { this.fetchClients(); this.closeClientModal(); },
+        next: () => { 
+          this.fetchClients(); 
+          this.fetchHoardings();
+          this.closeClientModal(); 
+        },
         error: (e) => console.error(e)
       });
     } else {
       this.apiService.createClient(this.newClient).subscribe({
-        next: () => { this.fetchClients(); this.closeClientModal(); },
+        next: () => { 
+          this.fetchClients(); 
+          this.fetchHoardings();
+          this.closeClientModal(); 
+        },
         error: (e) => console.error(e)
       });
     }
@@ -463,5 +575,21 @@ export class AdminDashboardComponent implements OnInit {
   clearNotifications() {
     this.notifications = [];
     this.showNotifications = false;
+  }
+  
+  resetFilters() {
+    this.filterStateId = null;
+    this.filterDistrictId = null;
+    this.filterLocationId = null;
+    this.filterStatus = null;
+  }
+
+  onFilterStateChange() {
+    this.filterDistrictId = null;
+    this.filterLocationId = null;
+  }
+
+  onFilterDistrictChange() {
+    this.filterLocationId = null;
   }
 }

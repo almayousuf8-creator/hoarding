@@ -3,7 +3,7 @@ import pool from '../config/db';
 
 export const getAll = async (req: Request, res: Response): Promise<void> => {
   try {
-    const [rows] = await pool.query('SELECT c.*, h.name as hoarding_name FROM clients c LEFT JOIN hoardings h ON c.hoarding_id = h.id');
+    const [rows] = await pool.query('SELECT c.*, h.name as hoarding_name, h.amount as hoarding_amount, h.occupied_till as hoarding_occupied_till FROM clients c LEFT JOIN hoardings h ON c.hoarding_id = h.id');
     res.json({ success: true, data: rows });
   } catch (error) {
     console.error(error);
@@ -13,7 +13,7 @@ export const getAll = async (req: Request, res: Response): Promise<void> => {
 
 export const getById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const [rows]: any = await pool.query('SELECT c.*, h.name as hoarding_name FROM clients c LEFT JOIN hoardings h ON c.hoarding_id = h.id WHERE c.id = ?', [req.params.id]);
+    const [rows]: any = await pool.query('SELECT c.*, h.name as hoarding_name, h.amount as hoarding_amount, h.occupied_till as hoarding_occupied_till FROM clients c LEFT JOIN hoardings h ON c.hoarding_id = h.id WHERE c.id = ?', [req.params.id]);
     if (rows.length === 0) {
       res.status(404).json({ success: false, message: 'Client not found' });
       return;
@@ -40,6 +40,12 @@ export const create = async (req: Request, res: Response): Promise<void> => {
     const query = `INSERT INTO clients (${fields.join(', ')}) VALUES (${placeholders})`;
     const [result]: any = await pool.query(query, values);
     
+    if (body.hoarding_id && body.status !== 'HIDDEN') {
+      const amount = body.payment || null;
+      const occupied_till = body.occupied_till || null;
+      await pool.query('UPDATE hoardings SET availability_status = "OCCUPIED", amount = COALESCE(?, amount), occupied_till = COALESCE(?, occupied_till) WHERE id = ?', [amount, occupied_till, body.hoarding_id]);
+    }
+    
     res.json({ success: true, message: 'Client created successfully', data: { id: result.insertId } });
   } catch (error) {
     console.error(error);
@@ -50,6 +56,15 @@ export const create = async (req: Request, res: Response): Promise<void> => {
 export const update = async (req: Request, res: Response): Promise<void> => {
   try {
     const body = req.body;
+    
+    // Fetch old client to check hoarding changes
+    const [oldClientRows]: any = await pool.query('SELECT hoarding_id, status FROM clients WHERE id = ?', [req.params.id]);
+    if (oldClientRows.length === 0) {
+      res.status(404).json({ success: false, message: 'Client not found' });
+      return;
+    }
+    const oldClient = oldClientRows[0];
+
     const fields = Object.keys(body).filter(k => ["name","email","phone","address","hoarding_id","status"].includes(k));
     const values = fields.map(k => body[k]);
     
@@ -63,9 +78,37 @@ export const update = async (req: Request, res: Response): Promise<void> => {
     values.push(req.params.id);
     
     const [result]: any = await pool.query(query, values);
-    if (result.affectedRows === 0) {
-      res.status(404).json({ success: false, message: 'Client not found' });
-      return;
+    
+    console.log('Update Client - ID:', req.params.id);
+    console.log('Old Client:', oldClient);
+    console.log('New Body:', body);
+
+    // Check if we need to free the old hoarding
+    // If client had a hoarding, and (status becomes HIDDEN OR hoarding_id changes)
+    if (oldClient.hoarding_id) {
+      const statusBecameHidden = body.status === 'HIDDEN' && oldClient.status !== 'HIDDEN';
+      const hoardingChanged = body.hoarding_id !== oldClient.hoarding_id && Number(body.hoarding_id) !== oldClient.hoarding_id;
+      
+      console.log('statusBecameHidden:', statusBecameHidden, 'hoardingChanged:', hoardingChanged);
+      
+      if (statusBecameHidden || hoardingChanged || body.status === 'HIDDEN') {
+        console.log('FREEING HOARDING ID:', oldClient.hoarding_id);
+        await pool.query('UPDATE hoardings SET availability_status = "AVAILABLE", occupied_till = NULL WHERE id = ?', [oldClient.hoarding_id]);
+      }
+    }
+    
+    // Now update new hoarding if it is selected and client is ACTIVE
+    if (body.hoarding_id && body.status !== 'HIDDEN') {
+      console.log('OCCUPYING HOARDING ID:', body.hoarding_id);
+      const amount = body.payment !== undefined ? body.payment : null;
+      const occupied_till = body.occupied_till !== undefined ? body.occupied_till : null;
+      let updates = ['availability_status = "OCCUPIED"'];
+      let vals = [];
+      if (amount !== null) { updates.push('amount = ?'); vals.push(amount); }
+      if (occupied_till !== null) { updates.push('occupied_till = ?'); vals.push(occupied_till); }
+      
+      vals.push(body.hoarding_id);
+      await pool.query(`UPDATE hoardings SET ${updates.join(', ')} WHERE id = ?`, vals);
     }
     
     res.json({ success: true, message: 'Client updated successfully' });

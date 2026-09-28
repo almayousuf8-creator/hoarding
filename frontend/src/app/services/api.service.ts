@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -9,6 +9,15 @@ export class ApiService {
   private apiUrl = 'http://localhost:5000/api';
 
   constructor(private http: HttpClient) {}
+
+  private getHeaders(): HttpHeaders {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    let headers = new HttpHeaders();
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
+  }
 
   getStates(): Observable<any> {
     return this.http.get(`${this.apiUrl}/states`);
@@ -95,5 +104,20 @@ export class ApiService {
 
   deleteHoarding(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/hoardings/${id}`);
+  }
+  getLeads(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/leads`, { headers: this.getHeaders() });
+  }
+
+  submitLead(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/leads`, data);
+  }
+
+  markLeadRead(id: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/leads/${id}/read`, {}, { headers: this.getHeaders() });
+  }
+
+  deleteLead(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/leads/${id}`, { headers: this.getHeaders() });
   }
 }

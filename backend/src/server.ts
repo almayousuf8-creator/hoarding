@@ -42,6 +42,7 @@ import clientRoutes from './routes/clients';
 import locationRoutes from './routes/locations';
 import hoardingRoutes from './routes/hoardings';
 import imageRoutes from './routes/images';
+import leadRoutes from './routes/leads';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/states', stateRoutes);
@@ -50,6 +51,7 @@ app.use('/api/clients', clientRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/hoardings', hoardingRoutes);
 app.use('/api/images', imageRoutes);
+app.use('/api/leads', leadRoutes);
 
 const PORT = process.env.PORT || 5000;
 

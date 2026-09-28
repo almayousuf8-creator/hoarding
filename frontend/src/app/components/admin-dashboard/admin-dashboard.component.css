@@ -505,14 +505,15 @@
 .actions { 
   color: #6b7280; 
   cursor: pointer;
-  display: flex;
-  gap: 12px;
-  justify-content: flex-start;
-  align-items: center;
+  text-align: center;
+  vertical-align: middle;
 }
 .action-icon {
   font-size: 18px;
   transition: all 0.2s;
+  margin: 0 6px;
+  display: inline-block;
+  vertical-align: middle;
 }
 .action-icon.view:hover { color: #3b82f6; transform: scale(1.1); }
 .action-icon.edit:hover { color: #10b981; transform: scale(1.1); }
