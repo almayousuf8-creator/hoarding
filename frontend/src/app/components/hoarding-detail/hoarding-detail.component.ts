@@ -4,6 +4,7 @@ import { ApiService } from '../../services/api.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-hoarding-detail',
@@ -16,7 +17,7 @@ export class HoardingDetailComponent implements OnInit {
   hoarding: any = null;
   loading: boolean = true;
   error: string | null = null;
-  backendUrl = 'http://localhost:5000';
+  backendUrl = environment.apiUrl;
   isBookingModalOpen: boolean = false;
   bookingForm = { name: '', email: '', phone: '' };
   bookingSuccess: boolean = false;

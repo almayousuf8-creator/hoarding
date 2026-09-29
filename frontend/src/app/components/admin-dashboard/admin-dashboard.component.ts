@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -14,6 +15,7 @@ import { ApiService } from '../../services/api.service';
 })
 export class AdminDashboardComponent implements OnInit {
   activeTab: string = 'overview';
+  backendUrl = environment.apiUrl;
   
   hoardings: any[] = [];
   editingHoardingId: number | null = null;

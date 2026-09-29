@@ -187,7 +187,7 @@
             <tbody>
               <tr *ngFor="let h of filteredHoardings">
                 <td>
-                  <img *ngIf="h.primary_image" [src]="'http://localhost:5000' + h.primary_image" class="td-img" style="object-fit: cover;" />
+                  <img *ngIf="h.primary_image" [src]="backendUrl + h.primary_image" class="td-img" style="object-fit: cover;" />
                   <div *ngIf="!h.primary_image" class="td-img"></div>
                 </td>
                 <td>{{ h.name }}</td>
@@ -215,7 +215,7 @@
           </div>
           <div class="modal-body">
             <div class="view-image-container">
-              <img *ngIf="viewingHoarding.primary_image" [src]="'http://localhost:5000' + viewingHoarding.primary_image" class="view-main-image" />
+              <img *ngIf="viewingHoarding.primary_image" [src]="backendUrl + viewingHoarding.primary_image" class="view-main-image" />
               <div *ngIf="!viewingHoarding.primary_image" class="view-no-image">No Image Available</div>
             </div>
             <div class="view-details">

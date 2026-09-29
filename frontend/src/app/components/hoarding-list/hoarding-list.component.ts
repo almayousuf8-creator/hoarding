@@ -4,6 +4,7 @@ import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-hoarding-list',
@@ -25,7 +26,7 @@ export class HoardingListComponent implements OnInit {
   openDropdown: 'state' | 'district' | 'location' | null = null;
 
   isLoading: boolean = false;
-  backendUrl = 'http://localhost:5000';
+  backendUrl = environment.apiUrl;
 
   newLead: any = { name: '', email: '', subject: '', message: '' };
   isSubmitting: boolean = false;

@@ -82,6 +82,8 @@
   padding: 180px 60px 160px 60px;
   text-align: left;
   font-family: 'Poppins', 'Segoe UI', sans-serif;
+  overflow: hidden;
+  isolation: isolate;
 }
 
 .hero-overlay {
@@ -96,6 +98,7 @@
   z-index: 2;
   max-width: 1200px;
   margin: 0 auto;
+  isolation: isolate;
 }
 
 .hero-content h1 {
@@ -117,12 +120,12 @@
 }
 
 .filter-card {
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(15, 23, 42, 0.55);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   padding: 24px 30px;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: flex-end;
@@ -130,9 +133,8 @@
   max-width: 980px;
   color: #ffffff;
   position: relative;
-  z-index: 50;
+  z-index: 3;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
-  transform: translateZ(0);
 }
 
 .filter-card:hover {
