@@ -1,6 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
@@ -31,7 +32,7 @@ export class HoardingListComponent implements OnInit {
   leadSuccessMessage: string = '';
   leadErrorMessage: string = '';
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, public authService: AuthService) {}
 
   ngOnInit() {
     this.loadStates();

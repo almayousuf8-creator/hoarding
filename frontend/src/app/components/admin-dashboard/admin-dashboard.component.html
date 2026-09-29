@@ -1,7 +1,7 @@
 <div class="admin-layout">
   <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="sidebar-header">
+    <div class="sidebar-header" routerLink="/" style="cursor: pointer;" title="Go to Public Website">
       <i class='bx bxs-city' style='font-size: 24px; color: white;'></i>
       <span>Hoarding Leasing</span>
     </div>
@@ -29,6 +29,9 @@
         <i class='bx bx-envelope icon'></i> Leads
         <span *ngIf="unreadLeadsCount > 0" style="margin-left: auto; background: #ef4444; color: white; border-radius: 10px; padding: 2px 8px; font-size: 12px; font-weight: bold;">{{ unreadLeadsCount }}</span>
       </a>
+      <a routerLink="/" class="nav-item" title="Visit Public Search Page">
+        <i class='bx bx-globe icon'></i> Public Search
+      </a>
       <a (click)="setActiveTab('settings')" class="nav-item mt-auto" [class.active]="activeTab === 'settings'">
         <i class='bx bx-cog icon'></i> Settings
       </a>
@@ -43,7 +46,10 @@
     <!-- Top Header -->
     <header class="top-header">
       <div class="header-left">
-        <!-- toggle removed -->
+        <a routerLink="/" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #475569; font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 6px; border: 1px solid #e2e8f0; background: #ffffff; transition: all 0.2s;" onmouseover="this.style.borderColor='#3b82f6'; this.style.color='#3b82f6';" onmouseout="this.style.borderColor='#e2e8f0'; this.style.color='#475569';">
+          <i class='bx bx-globe' style="font-size: 16px;"></i>
+          <span>View Public Search</span>
+        </a>
       </div>
       <div class="header-right">
         <div class="user-profile" style="display: flex; align-items: center; gap: 15px;">
