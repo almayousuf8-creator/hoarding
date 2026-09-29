@@ -1,9 +1,9 @@
-import { Router } from 'express';
-import { uploadImages, getImages, deleteImage } from '../controllers/images';
-import { authenticate } from '../middleware/auth';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+const { Router } = require('express');
+const { uploadImages, getImages, deleteImage } = require('../controllers/images');
+const { authenticate } = require('../middleware/auth');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -20,11 +20,10 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
-
 const router = Router();
 
 router.post('/:hoardingId', authenticate, upload.array('images', 10), uploadImages);
 router.get('/:hoardingId', getImages);
 router.delete('/:imageId', authenticate, deleteImage);
 
-export default router;
+module.exports = router;

@@ -1,17 +1,14 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+const jwt = require('jsonwebtoken');
 
-export const authenticate = (req: Request | any, res: Response, next: NextFunction): void => {
+const authenticate = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       res.status(401).json({ success: false, message: 'Authentication required' });
       return;
     }
-
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-    
     req.user = decoded;
     next();
   } catch (error) {
@@ -19,7 +16,7 @@ export const authenticate = (req: Request | any, res: Response, next: NextFuncti
   }
 };
 
-export const requireAdmin = (req: Request | any, res: Response, next: NextFunction): void => {
+const requireAdmin = (req, res, next) => {
   if (req.user && req.user.role === 'ADMIN') {
     next();
   } else {
@@ -27,10 +24,12 @@ export const requireAdmin = (req: Request | any, res: Response, next: NextFuncti
   }
 };
 
-export const requireClient = (req: Request | any, res: Response, next: NextFunction): void => {
+const requireClient = (req, res, next) => {
   if (req.user && (req.user.role === 'CLIENT' || req.user.role === 'ADMIN')) {
     next();
   } else {
     res.status(403).json({ success: false, message: 'Client access required' });
   }
 };
+
+module.exports = { authenticate, requireAdmin, requireClient };

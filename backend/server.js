@@ -1,19 +1,17 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import path from 'path';
-
-dotenv.config();
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
+const path = require('path');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-import pool from './config/db';
+const pool = require('./src/config/db');
 
-// Simple test route with DB health check
+// Health check route
 app.get('/api/health', async (req, res) => {
   try {
     await pool.query('SELECT 1');
@@ -26,7 +24,7 @@ app.get('/api/health', async (req, res) => {
         host: process.env.DB_HOST || '127.0.0.1'
       }
     });
-  } catch (err: any) {
+  } catch (err) {
     res.status(500).json({
       status: 'error',
       message: 'Database connection failed',
@@ -35,14 +33,14 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-import authRoutes from './routes/auth';
-import stateRoutes from './routes/states';
-import districtRoutes from './routes/districts';
-import clientRoutes from './routes/clients';
-import locationRoutes from './routes/locations';
-import hoardingRoutes from './routes/hoardings';
-import imageRoutes from './routes/images';
-import leadRoutes from './routes/leads';
+const authRoutes = require('./src/routes/auth');
+const stateRoutes = require('./src/routes/states');
+const districtRoutes = require('./src/routes/districts');
+const clientRoutes = require('./src/routes/clients');
+const locationRoutes = require('./src/routes/locations');
+const hoardingRoutes = require('./src/routes/hoardings');
+const imageRoutes = require('./src/routes/images');
+const leadRoutes = require('./src/routes/leads');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/states', stateRoutes);
@@ -61,7 +59,7 @@ app.listen(PORT, async () => {
     const connection = await pool.getConnection();
     console.log(`Database connected successfully to "${process.env.DB_NAME || 'hoarding'}" on ${process.env.DB_HOST || '127.0.0.1'}:${process.env.DB_PORT || '3306'}`);
     connection.release();
-  } catch (error: any) {
+  } catch (error) {
     console.error(`Database connection failed:`, error.message);
   }
 });
