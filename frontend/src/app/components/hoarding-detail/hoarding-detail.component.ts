@@ -22,6 +22,9 @@ export class HoardingDetailComponent implements OnInit {
   bookingSuccess: boolean = false;
   isHighlighting: boolean = false;
 
+  mapUrl: SafeResourceUrl | null = null;
+  mapLoaded: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -31,36 +34,66 @@ export class HoardingDetailComponent implements OnInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
+    const stateHoarding = history.state?.hoarding;
+
+    if (stateHoarding && (!id || stateHoarding.id == id)) {
+      this.hoarding = stateHoarding;
+      this.loading = false;
+      this.initMap();
+    }
+
     if (id) {
       this.fetchHoarding(Number(id));
-    } else {
+    } else if (!this.hoarding) {
       this.error = 'Invalid hoarding ID';
       this.loading = false;
     }
   }
 
-  getMapUrl(): SafeResourceUrl | null {
+  initMap(): void {
     if (this.hoarding?.latitude && this.hoarding?.longitude) {
-      const lat = this.hoarding.latitude;
-      const lng = this.hoarding.longitude;
-      const url = `https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.01},${lat-0.01},${lng+0.01},${lat+0.01}&layer=mapnik&marker=${lat},${lng}`;
-      return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+      const lat = parseFloat(this.hoarding.latitude);
+      const lng = parseFloat(this.hoarding.longitude);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        // Fast, reliable Google Maps embed with precise pin & no rate limiting
+        const url = `https://maps.google.com/maps?q=${lat},${lng}&hl=en&z=15&output=embed`;
+        this.mapUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+      }
+    }
+  }
+
+  onMapLoad(): void {
+    this.mapLoaded = true;
+  }
+
+  getGoogleMapsLink(): string | null {
+    if (this.hoarding?.google_maps_url) {
+      return this.hoarding.google_maps_url;
+    }
+    if (this.hoarding?.latitude && this.hoarding?.longitude) {
+      return `https://www.google.com/maps?q=${this.hoarding.latitude},${this.hoarding.longitude}`;
     }
     return null;
   }
+
   fetchHoarding(id: number): void {
     this.apiService.getHoardingById(id).subscribe({
       next: (res) => {
         if (res.success) {
           this.hoarding = res.data;
-        } else {
+          if (!this.mapUrl) {
+            this.initMap();
+          }
+        } else if (!this.hoarding) {
           this.error = res.message || 'Failed to fetch hoarding details';
         }
         this.loading = false;
       },
       error: (err) => {
         console.error(err);
-        this.error = 'An error occurred while fetching details.';
+        if (!this.hoarding) {
+          this.error = 'An error occurred while fetching details.';
+        }
         this.loading = false;
       }
     });

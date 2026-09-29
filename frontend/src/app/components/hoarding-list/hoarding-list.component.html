@@ -195,7 +195,7 @@
           Occupied till {{ hoarding.occupied_till | date:'dd MMM yyyy' }}
         </p>
         
-        <a [routerLink]="['/hoardings', hoarding.id]" class="btn-details">View Details <span class="arrow">›</span></a>
+        <a [routerLink]="['/hoardings', hoarding.id]" [state]="{ hoarding: hoarding }" class="btn-details">View Details <span class="arrow">›</span></a>
       </div>
     </div>
   </div>
