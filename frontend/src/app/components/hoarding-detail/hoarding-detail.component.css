@@ -38,11 +38,13 @@
 
 .back-btn:hover { color: #111827; }
 
-/* Two-column layout — NO fixed height, page scrolls naturally */
+/* Two-column layout — equal 50/50 split */
 .page-layout {
   display: grid;
-  grid-template-columns: 460px 1fr;
+  grid-template-columns: 1fr 1fr;
   align-items: start;
+  gap: 0 40px;
+  padding: 20px 40px;
 }
 
 /* ============================================
@@ -52,9 +54,11 @@
   display: flex;
   flex-direction: column;
   background: #0f172a;
-  height: calc(100vh - 95px - 45px); /* viewport minus navbar minus back-row */
+  border-radius: 16px;
+  overflow: hidden;
   min-height: 420px;
-  max-height: 600px;
+  height: fit-content;
+  align-self: start;
 }
 
 .main-image-area {
@@ -110,7 +114,7 @@
    RIGHT: Info Panel — scrolls with page
    ============================================ */
 .info-panel {
-  padding: 28px 36px 36px 36px;
+  padding: 20px 0 36px 0;
   background: #fff;
   display: flex;
   flex-direction: column;
@@ -479,14 +483,16 @@
 /* ============================================
    Responsive
    ============================================ */
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .page-layout {
     grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 20px 0;
   }
 
   .gallery-panel {
     height: 380px;
-    position: static;
+    border-radius: 12px;
   }
 
   .info-panel {
