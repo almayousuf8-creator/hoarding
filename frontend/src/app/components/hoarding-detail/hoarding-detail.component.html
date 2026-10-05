@@ -1,5 +1,6 @@
-<div class="hoarding-detail-container">
+<app-navbar></app-navbar>
 
+<div class="hoarding-detail-container">
 
   <div *ngIf="loading" class="loading-state">
     <div class="spinner"></div>
@@ -10,178 +11,172 @@
     <p>{{ error }}</p>
   </div>
 
-  <div *ngIf="!loading && !error && hoarding" class="content-wrapper">
-    <!-- Left Map Section -->
-    <div class="map-section">
-      <iframe 
-        *ngIf="mapUrl"
-        class="map-iframe"
-        [class.loaded]="mapLoaded"
-        width="100%" 
-        height="100%" 
-        frameborder="0" 
-        scrolling="no" 
-        marginheight="0" 
-        marginwidth="0" 
-        [src]="mapUrl"
-        loading="eager"
-        (load)="onMapLoad()">
-      </iframe>
-      <button class="map-back-btn" (click)="goBack()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <div *ngIf="!loading && !error && hoarding">
+
+    <!-- Back button — full width, above the two columns -->
+    <div class="back-row">
+      <button class="back-btn" (click)="goBack()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
-        <span>Back</span>
+        Back
       </button>
-      <a *ngIf="getGoogleMapsLink()" [href]="getGoogleMapsLink()" target="_blank" class="map-ext-btn" title="Open full map in Google Maps">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-          <line x1="8" y1="2" x2="8" y2="18"></line>
-          <line x1="16" y1="6" x2="16" y2="22"></line>
-        </svg>
-        <span>View on Maps</span>
-      </a>
-      <div class="billboard-preview-card">
-        <div class="preview-image-wrapper">
-          <img [src]="hoarding.primary_image ? (backendUrl + hoarding.primary_image) : 'assets/placeholder.png'" 
-               alt="{{ hoarding.name }}" 
-               class="preview-image" 
-               onerror="this.src='https://images.unsplash.com/photo-1542204637-e67bc7d41e48?auto=format&fit=crop&q=80&w=800'"/>
-          
-          <div class="status-badge" [class.available]="hoarding.availability_status === 'AVAILABLE'" [class.booked]="hoarding.availability_status !== 'AVAILABLE'">
-            <span class="live-indicator"></span>
-            <span>{{ hoarding.availability_status === 'AVAILABLE' ? 'Available' : 'Occupied' }}</span>
-          </div>
-        </div>
-        
-        <div class="preview-details">
-          <div class="preview-price-row">
-            <div class="price-left">
-              <span class="amount">₹{{ hoarding.amount | number }}</span>
-              <span class="period">/ month</span>
-            </div>
-            <span class="impressions">345K weekly impressions</span>
-          </div>
-          <div class="preview-stats">
-            <div class="p-stat">
-              <span class="p-label">Product</span>
-              <span class="p-val">Billboard</span>
-            </div>
-            <div class="p-stat">
-              <span class="p-label">Location</span>
-              <span class="p-val">{{ hoarding.location_name }}</span>
-            </div>
-            <div class="p-stat">
-              <span class="p-label">Dimensions</span>
-              <span class="p-val">{{ hoarding.description || '14\'0" High, 48\'0" Wide' }}</span>
-            </div>
-            <div class="p-stat">
-              <span class="p-label">Facing</span>
-              <span class="p-val">East (right of road)</span>
-            </div>
-          </div>
-          <div class="preview-actions">
-            <button class="preview-btn outline" (click)="highlightDetails()">More Details</button>
-            <button class="preview-btn solid" (click)="highlightDetails()">Purchase</button>
-          </div>
-        </div>
-      </div>
     </div>
-    
-    <!-- Right Info & Actions Section -->
-    <div class="info-section">
-      <div class="info-header">
 
-        <h1 class="title">{{ hoarding.name }}</h1>
-        <div class="location-row">
-          <span class="location-badge">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/>
-            </svg>
-            {{ hoarding.location_name }}
-          </span>
-          <span class="traffic-tag">High Visibility Zone</span>
-        </div>
-      </div>
+    <!-- Two-column layout -->
+    <div class="page-layout">
 
-
-
-      <!-- Feature Grid -->
-      <div class="features-container" [class.highlight-pulse]="isHighlighting">
-        <div class="feature-card">
-          <div class="feature-icon-wrapper">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="9" y1="3" x2="9" y2="21"></line>
-            </svg>
-          </div>
-          <div class="feature-text">
-            <span class="feature-label">DIMENSIONS</span>
-            <span class="feature-val">{{ hoarding.description || 'Standard 40×20 ft' }}</span>
-          </div>
+      <!-- LEFT: Photo Gallery -->
+      <div class="gallery-panel">
+        <div class="main-image-area">
+          <img
+            [src]="selectedImage ? (backendUrl + selectedImage) : (hoarding.primary_image ? (backendUrl + hoarding.primary_image) : 'assets/placeholder.png')"
+            alt="{{ hoarding.name }}"
+            class="main-image"
+            onerror="this.src='https://images.unsplash.com/photo-1542204637-e67bc7d41e48?auto=format&fit=crop&q=80&w=900'"
+          />
         </div>
 
-
-        <div class="feature-card">
-          <div class="feature-icon-wrapper">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-            </svg>
+        <!-- Thumbnail Strip -->
+        <div class="thumb-strip">
+          <div
+            class="thumb-item"
+            *ngFor="let img of images"
+            [class.active]="selectedImage === img.image_path"
+            (click)="selectImage(img.image_path)"
+          >
+            <img
+              [src]="backendUrl + img.image_path"
+              alt="view"
+              onerror="this.src='https://images.unsplash.com/photo-1542204637-e67bc7d41e48?auto=format&fit=crop&q=80&w=200'"
+            />
           </div>
-          <div class="feature-text">
-            <span class="feature-label">MANAGED BY</span>
-            <span class="feature-val">{{ hoarding.client_name || 'Direct / Agency' }}</span>
-          </div>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon-wrapper">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="12 2 19 21 12 17 5 21 12 2"></polygon>
-            </svg>
-          </div>
-          <div class="feature-text">
-            <span class="feature-label">GPS COORDS</span>
-            <span class="feature-val monospace">{{ hoarding.latitude && hoarding.longitude ? (hoarding.latitude | number:'1.2-4') + ', ' + (hoarding.longitude | number:'1.2-4') : 'Verified Site' }}</span>
+          <!-- Fallback: show primary as thumb when no images list -->
+          <div class="thumb-item active" *ngIf="!images || images.length === 0">
+            <img
+              [src]="hoarding.primary_image ? (backendUrl + hoarding.primary_image) : 'assets/placeholder.png'"
+              alt="view"
+            />
           </div>
         </div>
       </div>
 
+      <!-- RIGHT: Info & Booking -->
+      <div class="info-panel">
 
-      <!-- Inline Booking Form -->
-      <div class="inline-booking-form">
-        <h3>Client Booking Request</h3>
-        <p *ngIf="!bookingSuccess" class="form-desc">Enter your details to finalize your request for this hoarding.</p>
-        
-        <div *ngIf="!bookingSuccess">
-          <form (ngSubmit)="submitBooking()" #form="ngForm" class="booking-grid">
-            <div class="form-group">
-              <label>Your Name *</label>
-              <input type="text" name="name" [(ngModel)]="bookingForm.name" required>
+        <h1 class="hoarding-title">{{ hoarding.name }}</h1>
+
+        <!-- Status + Occupied Banner -->
+        <div class="status-row">
+          <div class="status-pill"
+               [class.occupied-pill]="hoarding.availability_status !== 'AVAILABLE'"
+               [class.available-pill]="hoarding.availability_status === 'AVAILABLE'">
+            <span class="status-dot"></span>
+            {{ hoarding.availability_status === 'AVAILABLE' ? 'Available' : 'Occupied' }}
+          </div>
+          <div class="occupied-banner" *ngIf="hoarding.availability_status !== 'AVAILABLE' && hoarding.occupied_till">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            This hoarding is currently occupied
+            <strong>till {{ hoarding.occupied_till | date:'d MMM yyyy' }}</strong>.
+          </div>
+        </div>
+
+        <!-- Location & Description -->
+        <div class="info-rows">
+          <div class="info-row">
+            <span class="info-label">Location</span>
+            <span class="info-val location-val">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/>
+              </svg>
+              {{ hoarding.location_name }}
+            </span>
+          </div>
+          <div class="info-row" *ngIf="hoarding.description">
+            <span class="info-label">Description</span>
+            <span class="info-val desc-val">{{ hoarding.description }}</span>
+          </div>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="feature-cards">
+          <div class="feat-card">
+            <div class="feat-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="9" y1="3" x2="9" y2="21"></line>
+              </svg>
             </div>
-            <div class="form-group">
-              <label>Phone Number *</label>
-              <input type="tel" name="phone" [(ngModel)]="bookingForm.phone" required>
+            <div class="feat-text">
+              <span class="feat-label">DIMENSIONS</span>
+              <span class="feat-val">{{ hoarding.dimensions || 'N/A' }}</span>
             </div>
-            <div class="form-group full-width">
-              <label>Email Address *</label>
-              <input type="email" name="email" [(ngModel)]="bookingForm.email" required>
+          </div>
+          <div class="feat-card">
+            <div class="feat-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 19 21 12 17 5 21 12 2"></polygon>
+              </svg>
             </div>
-            <button type="submit" class="submit-btn full-width" [disabled]="!form.valid || hoarding.availability_status !== 'AVAILABLE'">
-              {{ hoarding.availability_status === 'AVAILABLE' ? 'Submit Booking Request' : 'Currently Unavailable' }}
+            <div class="feat-text">
+              <span class="feat-label">GPS COORDS</span>
+              <span class="feat-val monospace">
+                {{ hoarding.latitude && hoarding.longitude
+                  ? (hoarding.latitude | number:'1.3-3') + ', ' + (hoarding.longitude | number:'1.3-3')
+                  : 'N/A' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Booking Form -->
+        <div class="booking-section" *ngIf="!bookingSuccess">
+          <h3 class="booking-heading">Reserve Your Advertising Space Today.</h3>
+          <form (ngSubmit)="submitBooking()" #bookForm="ngForm" class="booking-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Your Name *</label>
+                <input type="text" name="name" [(ngModel)]="bookingForm.name" required />
+              </div>
+              <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="tel" name="phone" [(ngModel)]="bookingForm.phone" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Email Address *</label>
+                <input type="email" name="email" [(ngModel)]="bookingForm.email" required />
+              </div>
+              <div class="form-group">
+                <label>Add a Note</label>
+                <input type="text" name="note" [(ngModel)]="bookingForm.note" placeholder="Optional" />
+              </div>
+            </div>
+            <button
+              type="submit"
+              class="prebook-btn"
+              [disabled]="!bookForm.valid"
+              [class.btn-available]="hoarding.availability_status === 'AVAILABLE'"
+              [class.btn-occupied]="hoarding.availability_status !== 'AVAILABLE'"
+            >
+              {{ hoarding.availability_status === 'AVAILABLE' ? 'PRE-BOOK THIS HOARDING' : 'CURRENTLY UNAVAILABLE' }}
             </button>
           </form>
         </div>
 
+        <!-- Success State -->
         <div class="success-state" *ngIf="bookingSuccess">
           <div class="success-icon">✓</div>
-          <h4>Request Received!</h4>
-          <p>Thank you for your interest. We will contact you shortly to finalize.</p>
+          <h4>Booking Request Sent!</h4>
+          <p>Thank you! Our team will contact you shortly to confirm your booking.</p>
         </div>
-      </div>
-    </div>
+
+      </div><!-- /info-panel -->
+    </div><!-- /page-layout -->
   </div>
 </div>

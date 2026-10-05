@@ -1,0 +1,1 @@
+const https = require('https'); https.get('https://maxplusmedia.com/', res => { let data = ''; res.on('data', c => data += c); res.on('end', () => { const urls = data.match(/https:\/\/maxplusmedia\.com\/[^"']+\.(png|jpg|jpeg|svg|webp)/gi); if(urls) { const ul = [...new Set(urls)].filter(u => u.toLowerCase().includes('logo')); console.log(ul.join('\n')); } }); });

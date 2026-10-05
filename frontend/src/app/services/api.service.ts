@@ -62,6 +62,9 @@ export class ApiService {
   deleteClient(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/clients/${id}`);
   }
+  updateClientStatus(id: number, status: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/clients/${id}/status`, { status }, { headers: this.getHeaders() });
+  }
   confirmBooking(clientId: number, data: { occupied_till: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/clients/${clientId}/confirm-booking`, data);
   }
@@ -106,6 +109,10 @@ export class ApiService {
   deleteHoarding(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/hoardings/${id}`);
   }
+
+  updateHoardingAvailability(id: number, data: any): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/hoardings/${id}/availability`, data, { headers: this.getHeaders() });
+  }
   getLeads(): Observable<any> {
     return this.http.get(`${this.apiUrl}/leads`, { headers: this.getHeaders() });
   }
@@ -120,5 +127,13 @@ export class ApiService {
 
   deleteLead(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/leads/${id}`, { headers: this.getHeaders() });
+  }
+
+  getHoardingImages(hoardingId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/images/${hoardingId}`);
+  }
+
+  deleteHoardingImage(imageId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/images/${imageId}`);
   }
 }

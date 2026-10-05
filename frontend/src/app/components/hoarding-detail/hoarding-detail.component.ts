@@ -6,10 +6,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../environments/environment';
 
+import { NavbarComponent } from '../navbar/navbar.component';
+
 @Component({
   selector: 'app-hoarding-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NavbarComponent],
   templateUrl: './hoarding-detail.component.html',
   styleUrl: './hoarding-detail.component.css'
 })
@@ -19,7 +21,7 @@ export class HoardingDetailComponent implements OnInit {
   error: string | null = null;
   backendUrl = environment.apiUrl;
   isBookingModalOpen: boolean = false;
-  bookingForm = { name: '', email: '', phone: '' };
+  bookingForm = { name: '', email: '', phone: '', note: '' };
   bookingSuccess: boolean = false;
   isHighlighting: boolean = false;
 
@@ -76,15 +78,30 @@ export class HoardingDetailComponent implements OnInit {
     }
     return null;
   }
+  images: any[] = [];
+  selectedImage: string | null = null;
 
   fetchHoarding(id: number): void {
     this.apiService.getHoardingById(id).subscribe({
       next: (res) => {
         if (res.success) {
           this.hoarding = res.data;
+          this.selectedImage = this.hoarding.primary_image;
           if (!this.mapUrl) {
             this.initMap();
           }
+          // Fetch additional images
+          this.apiService.getHoardingImages(id).subscribe({
+            next: (imgRes: any) => {
+              if (imgRes.success && imgRes.data.length > 0) {
+                this.images = imgRes.data;
+                // If primary_image wasn't set, use the first image from DB
+                if (!this.selectedImage && this.images.length > 0) {
+                  this.selectedImage = this.images[0].image_path;
+                }
+              }
+            }
+          });
         } else if (!this.hoarding) {
           this.error = res.message || 'Failed to fetch hoarding details';
         }
@@ -100,6 +117,10 @@ export class HoardingDetailComponent implements OnInit {
     });
   }
 
+  selectImage(imagePath: string): void {
+    this.selectedImage = imagePath;
+  }
+
   bookHoarding(): void {
     if (this.hoarding) {
       this.isBookingModalOpen = true;
@@ -112,10 +133,16 @@ export class HoardingDetailComponent implements OnInit {
   }
 
   submitBooking(): void {
+    if (!this.bookingForm.name || !this.bookingForm.phone || !this.bookingForm.email) {
+      alert('Please fill all the required fields (*).');
+      return;
+    }
+
     const payload = {
       name: this.bookingForm.name,
       email: this.bookingForm.email,
       phone: this.bookingForm.phone,
+      note: this.bookingForm.note,
       hoarding_id: this.hoarding.id,
       status: 'ACTIVE'
     };
@@ -123,7 +150,7 @@ export class HoardingDetailComponent implements OnInit {
     this.apiService.createClient(payload).subscribe({
       next: (res) => {
         this.bookingSuccess = true;
-        this.bookingForm = { name: '', email: '', phone: '' };
+        this.bookingForm = { name: '', email: '', phone: '', note: '' };
       },
       error: (e) => {
         console.error(e);

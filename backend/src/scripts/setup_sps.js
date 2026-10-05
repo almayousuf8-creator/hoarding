@@ -17,6 +17,7 @@ async function createSPs() {
         IN p_location_id INT,
         IN p_name VARCHAR(255),
         IN p_description TEXT,
+        IN p_dimensions VARCHAR(255),
         IN p_availability_status VARCHAR(50),
         IN p_occupied_till DATE,
         IN p_amount DECIMAL(10,2),
@@ -25,12 +26,12 @@ async function createSPs() {
         IN p_google_maps_url TEXT,
         IN p_status VARCHAR(50)
       )
-      BEGIN
+        BEGIN
         INSERT INTO hoardings (
-          location_id, name, description, availability_status, occupied_till, 
+          location_id, name, description, dimensions, availability_status, occupied_till, 
           amount, latitude, longitude, google_maps_url, status
         ) VALUES (
-          p_location_id, p_name, p_description, p_availability_status, p_occupied_till, 
+          p_location_id, p_name, p_description, p_dimensions, p_availability_status, p_occupied_till, 
           p_amount, p_latitude, p_longitude, p_google_maps_url, p_status
         );
         SELECT LAST_INSERT_ID() as insertId;
@@ -45,6 +46,7 @@ async function createSPs() {
         IN p_location_id INT,
         IN p_name VARCHAR(255),
         IN p_description TEXT,
+        IN p_dimensions VARCHAR(255),
         IN p_availability_status VARCHAR(50),
         IN p_occupied_till DATE,
         IN p_amount DECIMAL(10,2),
@@ -59,6 +61,7 @@ async function createSPs() {
           location_id = p_location_id,
           name = p_name,
           description = p_description,
+          dimensions = p_dimensions,
           availability_status = p_availability_status,
           occupied_till = p_occupied_till,
           amount = p_amount,

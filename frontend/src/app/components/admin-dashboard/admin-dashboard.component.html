@@ -1,9 +1,8 @@
 <div class="admin-layout">
   <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="sidebar-header" routerLink="/" style="cursor: pointer;" title="Go to Public Website">
-      <i class='bx bxs-city' style='font-size: 24px; color: white;'></i>
-      <span>Hoarding Leasing</span>
+    <div class="sidebar-header" routerLink="/" style="cursor: pointer; padding: 20px;" title="Go to Public Website">
+      <img src="https://maxplusmedia.com/wp-content/uploads/2026/01/white-logo.png" alt="Max Plus Media" style="width: 100%; height: auto; max-width: 180px;">
     </div>
     
     <nav class="sidebar-nav">
@@ -13,25 +12,15 @@
       <a (click)="setActiveTab('management')" class="nav-item" [class.active]="activeTab === 'management'">
         <i class='bx bx-list-ul icon'></i> Hoarding Management
       </a>
-      <a (click)="setActiveTab('states')" class="nav-item" [class.active]="activeTab === 'states'">
-        <i class='bx bx-map-pin icon'></i> States
-      </a>
-      <a (click)="setActiveTab('districts')" class="nav-item" [class.active]="activeTab === 'districts'">
-        <i class='bx bxs-map icon'></i> Districts
-      </a>
+      
+      
       <a (click)="setActiveTab('clients')" class="nav-item" [class.active]="activeTab === 'clients'">
-        <i class='bx bx-user-circle icon'></i> Clients
+        <i class='bx bx-user-circle icon'></i> Leads
       </a>
       <a (click)="setActiveTab('locations')" class="nav-item" [class.active]="activeTab === 'locations'">
         <i class='bx bx-map-alt icon'></i> Locations
       </a>
-      <a (click)="setActiveTab('leads')" class="nav-item" [class.active]="activeTab === 'leads'">
-        <i class='bx bx-envelope icon'></i> Leads
-        <span *ngIf="unreadLeadsCount > 0" style="margin-left: auto; background: #ef4444; color: white; border-radius: 10px; padding: 2px 8px; font-size: 12px; font-weight: bold;">{{ unreadLeadsCount }}</span>
-      </a>
-      <a routerLink="/" class="nav-item" title="Visit Public Search Page">
-        <i class='bx bx-globe icon'></i> Public Search
-      </a>
+
       <a (click)="setActiveTab('settings')" class="nav-item mt-auto" [class.active]="activeTab === 'settings'">
         <i class='bx bx-cog icon'></i> Settings
       </a>
@@ -46,10 +35,7 @@
     <!-- Top Header -->
     <header class="top-header">
       <div class="header-left">
-        <a routerLink="/" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #475569; font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 6px; border: 1px solid #e2e8f0; background: #ffffff; transition: all 0.2s;" onmouseover="this.style.borderColor='#3b82f6'; this.style.color='#3b82f6';" onmouseout="this.style.borderColor='#e2e8f0'; this.style.color='#475569';">
-          <i class='bx bx-globe' style="font-size: 16px;"></i>
-          <span>View Public Search</span>
-        </a>
+
       </div>
       <div class="header-right">
         <div class="user-profile" style="display: flex; align-items: center; gap: 15px;">
@@ -93,7 +79,7 @@
         </div>
 
         <div class="stats-grid">
-          <div class="stat-card">
+          <div class="stat-card" (click)="setActiveTab('management'); filterStatus = 'ALL'" style="cursor: pointer;">
             <div class="stat-icon green">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4 6C4 4.89543 4.89543 4 6 4H18C19.1046 4 20 4.89543 20 6V14C20 15.1046 19.1046 16 18 16H6C4.89543 16 4 15.1046 4 14V6Z" stroke="currentColor" stroke-width="2"/>
@@ -106,7 +92,7 @@
               <p class="stat-trend positive">↑ Live Data</p>
             </div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card" (click)="setActiveTab('management'); filterStatus = 'AVAILABLE'" style="cursor: pointer;">
             <div class="stat-icon blue">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
             </div>
@@ -116,7 +102,7 @@
               <p class="stat-trend positive">↑ Live Data</p>
             </div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card" (click)="setActiveTab('management'); filterStatus = 'OCCUPIED'" style="cursor: pointer;">
             <div class="stat-icon red">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
             </div>
@@ -126,12 +112,12 @@
               <p class="stat-trend positive">↑ Live Data</p>
             </div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card" (click)="setActiveTab('clients')" style="cursor: pointer;">
             <div class="stat-icon purple">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
             </div>
             <div class="stat-info">
-              <p class="stat-title">Total Clients</p>
+              <p class="stat-title">Total Leads</p>
               <h3 class="stat-value">{{ clients.length }}</h3>
               <p class="stat-trend positive">↑ Live Data</p>
             </div>
@@ -147,21 +133,19 @@
         </div>
         <div class="panel table-panel">
           <div class="filters-row">
-            <select [(ngModel)]="filterStateId" (ngModelChange)="onFilterStateChange()">
-              <option [ngValue]="null">All States</option>
-              <option *ngFor="let s of states" [ngValue]="s.id">{{ s.name }}</option>
-            </select>
-            <select [(ngModel)]="filterDistrictId" (ngModelChange)="onFilterDistrictChange()">
-              <option [ngValue]="null">All Districts</option>
-              <ng-container *ngFor="let d of districts">
-                <option *ngIf="!filterStateId || filterStateId === -1 || d.state_id === filterStateId" [ngValue]="d.id">{{ d.name }}</option>
-              </ng-container>
-            </select>
-            <select [(ngModel)]="filterLocationId">
-              <option [ngValue]="null">All Locations</option>
-              <ng-container *ngFor="let l of locations">
-                <option *ngIf="!filterDistrictId || filterDistrictId === -1 || l.district_id === filterDistrictId" [ngValue]="l.id">{{ l.name }}</option>
-              </ng-container>
+            
+            
+            <select [(ngModel)]="filterState" (ngModelChange)="onStateFilterChange()" style="padding: 8px 15px; border-radius: 6px; border: 1px solid #d1d5db; outline: none; width: 140px;">
+                <option value="">All States</option>
+                <option *ngFor="let state of uniqueStates" [value]="state">{{ state }}</option>
+              </select>
+              <select [(ngModel)]="filterDistrict" style="padding: 8px 15px; border-radius: 6px; border: 1px solid #d1d5db; outline: none; width: 150px;">
+                <option value="">All Districts</option>
+                <option *ngFor="let district of uniqueDistricts" [value]="district">{{ district }}</option>
+              </select>
+              <select [(ngModel)]="filterLocationId">
+                <option [ngValue]="null">All Locations</option>
+              <option *ngFor="let l of activeFilteredLocations" [ngValue]="l.id">{{ l.name }}</option>
             </select>
             <select [(ngModel)]="filterStatus">
               <option [ngValue]="null">All Status</option>
@@ -178,9 +162,9 @@
                 <th>Image</th>
                 <th>Hoarding Name</th>
                 <th>Location</th>
-                <th>Client</th>
                 <th>Availability</th>
                 <th>Occupied Till</th>
+                <th>Update Status</th>
                 <th style="text-align: center;">Actions</th>
               </tr>
             </thead>
@@ -192,9 +176,9 @@
                 </td>
                 <td>{{ h.name }}</td>
                 <td>{{ h.location_name || 'N/A' }}</td>
-                <td>{{ h.client_name || 'N/A' }}</td>
                 <td><span class="badge" [class.available]="h.availability_status === 'AVAILABLE'" [class.occupied]="h.availability_status === 'OCCUPIED'">{{ (h.availability_status || 'AVAILABLE') | titlecase }}</span></td>
                 <td>{{ (h.occupied_till | date:'dd MMM yyyy') || '-' }}</td>
+                <td><button type="button" class="btn-sm" style="padding: 4px 10px; font-size: 12px; border-radius: 4px; border: 1px solid #d1d5db; background: #f3f4f6; color: #374151; font-weight: 500; cursor: pointer;" (click)="openStatusModal(h)">Update</button></td>
                 <td class="actions">
                   <i class='bx bxs-show action-icon view' (click)="viewHoarding(h)" title="View"></i>
                   <i class='bx bxs-pencil action-icon edit' (click)="editHoarding(h)" title="Edit"></i> 
@@ -214,9 +198,23 @@
             <button class="close-btn" (click)="closeViewModal()"><i class='bx bx-x'></i></button>
           </div>
           <div class="modal-body">
-            <div class="view-image-container">
-              <img *ngIf="viewingHoarding.primary_image" [src]="backendUrl + viewingHoarding.primary_image" class="view-main-image" />
-              <div *ngIf="!viewingHoarding.primary_image" class="view-no-image">No Image Available</div>
+            <div class="view-image-container" style="position: relative;">
+              <ng-container *ngIf="viewingHoarding.images_array?.length > 0; else noImage">
+                <img [src]="backendUrl + viewingHoarding.images_array[currentImageIndex]" class="view-main-image" style="width: 100%; display: block;" />
+                
+                <button *ngIf="viewingHoarding.images_array.length > 1" (click)="prevImage()" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                  <i class='bx bx-chevron-left' style="font-size: 24px;"></i>
+                </button>
+                <button *ngIf="viewingHoarding.images_array.length > 1" (click)="nextImage()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                  <i class='bx bx-chevron-right' style="font-size: 24px;"></i>
+                </button>
+                <div *ngIf="viewingHoarding.images_array.length > 1" style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.5); color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">
+                  {{ currentImageIndex + 1 }} / {{ viewingHoarding.images_array.length }}
+                </div>
+              </ng-container>
+              <ng-template #noImage>
+                <div class="view-no-image">No Image Available</div>
+              </ng-template>
             </div>
             <div class="view-details">
               <h2 style="margin-bottom: 5px;">{{ viewingHoarding.name }}</h2>
@@ -230,22 +228,41 @@
               
               <div class="detail-grid">
                 <div class="detail-item">
-                  <span class="label">Client</span>
-                  <span class="val">{{ viewingHoarding.client_name || 'N/A' }}</span>
-                </div>
-                <div class="detail-item">
-                  <span class="label">Amount</span>
-                  <span class="val">{{ viewingHoarding.amount ? '₹' + viewingHoarding.amount : 'N/A' }}</span>
-                </div>
-                <div class="detail-item">
                   <span class="label">Status</span>
                   <span class="badge" [class.available]="viewingHoarding.availability_status === 'AVAILABLE'" [class.occupied]="viewingHoarding.availability_status === 'OCCUPIED'">
                     {{ (viewingHoarding.availability_status || 'AVAILABLE') | titlecase }}
                   </span>
                 </div>
-                <div class="detail-item">
+                <div class="detail-item" *ngIf="viewingHoarding.availability_status === 'OCCUPIED'">
                   <span class="label">Occupied Till</span>
                   <span class="val">{{ (viewingHoarding.occupied_till | date:'dd MMM yyyy') || '-' }}</span>
+                </div>
+              </div>
+              <div class="detail-grid" style="margin-top: 15px;">
+                <div class="detail-item">
+                  <span class="label">Dimensions</span>
+                  <span class="val" style="font-weight: 500; color: #374151;">{{ viewingHoarding.dimensions || 'N/A' }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="label">District & State</span>
+                  <span class="val" style="font-weight: 500; color: #374151;">{{ (viewingHoarding.district || viewingHoarding.loc_district || 'N/A') | titlecase }}, {{ (viewingHoarding.state || viewingHoarding.loc_state || 'N/A') | titlecase }}</span>
+                </div>
+              </div>
+              <div class="detail-grid" style="margin-top: 15px;">
+                <div class="detail-item">
+                  <span class="label">Coordinates (Lat, Lon)</span>
+                  <span class="val" style="font-weight: 500; color: #374151;">
+                    {{ viewingHoarding.latitude || 'N/A' }}{{ viewingHoarding.longitude ? ', ' + viewingHoarding.longitude : '' }}
+                  </span>
+                </div>
+                
+              </div>
+              <div class="detail-grid" style="margin-top: 15px;" *ngIf="viewingHoarding.google_maps_url">
+                <div class="detail-item" style="grid-column: span 2;">
+                  <span class="label">Google Maps Link</span>
+                  <a [href]="viewingHoarding.google_maps_url" target="_blank" style="color: #3b82f6; text-decoration: none; word-break: break-all; font-weight: 500; font-size: 14px;">
+                    {{ viewingHoarding.google_maps_url }}
+                  </a>
                 </div>
               </div>
 
@@ -258,152 +275,18 @@
         </div>
       </div>
 
-      <!-- States Tab -->
-      <div *ngIf="activeTab === 'states'">
-        <div class="dashboard-header">
-          <h2>States</h2>
-          <button class="action-btn-green" (click)="openStateModal()"><i class='bx bx-plus'></i> Add State</button>
-        </div>
-        <div class="panel table-panel">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>State Name</th>
-                <th>Status</th>
-                <th>Created At</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let s of states">
-                <td>{{ s.id }}</td>
-                <td>{{ s.name }}</td>
-                <td><span class="text-green" [style.color]="s.status === 'ACTIVE' ? '#10b981' : '#ef4444'">{{ s.status | titlecase }}</span></td>
-                <td>{{ (s.created_at | date:'dd MMM yyyy') || '-' }}</td>
-                <td class="actions">
-                  <i class='bx bxs-pencil action-icon edit' (click)="openStateModal(s)" title="Edit"></i> 
-                  <i class='bx bxs-trash-alt action-icon delete' (click)="deleteState(s.id)" title="Delete"></i>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- State Modal -->
-      <div class="modal-overlay" *ngIf="isStateModalOpen">
-        <div class="modal-content" style="width: 400px;">
-          <div class="modal-header">
-            <h3>{{ editingStateId ? 'Edit State' : 'Add State' }}</h3>
-            <button class="close-btn" (click)="closeStateModal()"><i class='bx bx-x'></i></button>
-          </div>
-          <div class="modal-body">
-            <form (ngSubmit)="saveState()">
-              <div class="form-group full-width" style="margin-bottom: 15px;">
-                <label>State Name *</label>
-                <input type="text" name="name" [(ngModel)]="newState.name" placeholder="e.g. Kerala" required style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
-              </div>
-              <div class="form-group full-width" style="margin-bottom: 20px;">
-                <label>Status</label>
-                <select name="status" [(ngModel)]="newState.status" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
-                  <option value="ACTIVE">Active</option>
-                  <option value="HIDDEN">Hidden</option>
-                </select>
-              </div>
-              <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" (click)="closeStateModal()" style="padding: 8px 15px; border: 1px solid #d1d5db; background: transparent; border-radius: 4px; cursor: pointer;">Cancel</button>
-                <button type="submit" class="action-btn-green" style="padding: 8px 15px;">Save</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <!-- Districts Tab -->
-      <div *ngIf="activeTab === 'districts'">
-        <div class="dashboard-header">
-          <h2>Districts</h2>
-          <div class="header-actions">
-            <button class="action-btn-green" (click)="openDistrictModal()"><i class='bx bx-plus'></i> Add District</button>
-          </div>
-        </div>
-        <div class="panel table-panel">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>District Name</th>
-                <th>State</th>
-                <th>Status</th>
-                <th>Created At</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let d of districts">
-                <td>{{ d.id }}</td>
-                <td>{{ d.name }}</td>
-                <td>{{ d.state_name }}</td>
-                <td><span class="text-green" [style.color]="d.status === 'ACTIVE' ? '#10b981' : '#ef4444'">{{ d.status | titlecase }}</span></td>
-                <td>{{ (d.created_at | date:'dd MMM yyyy') || '-' }}</td>
-                <td class="actions">
-                  <i class='bx bxs-pencil action-icon edit' (click)="openDistrictModal(d)" title="Edit"></i> 
-                  <i class='bx bxs-trash-alt action-icon delete' (click)="deleteDistrict(d.id)" title="Delete"></i>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- District Modal -->
-      <div class="modal-overlay" *ngIf="isDistrictModalOpen">
-        <div class="modal-content" style="width: 400px;">
-          <div class="modal-header">
-            <h3>{{ editingDistrictId ? 'Edit District' : 'Add District' }}</h3>
-            <button class="close-btn" (click)="closeDistrictModal()"><i class='bx bx-x'></i></button>
-          </div>
-          <div class="modal-body">
-            <form (ngSubmit)="saveDistrict()">
-              <div class="form-group full-width" style="margin-bottom: 15px;">
-                <label>State *</label>
-                <select name="state_id" [(ngModel)]="newDistrict.state_id" required style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
-                  <option *ngFor="let s of states" [ngValue]="s.id">{{ s.name }}</option>
-                </select>
-              </div>
-              <div class="form-group full-width" style="margin-bottom: 15px;">
-                <label>District Name *</label>
-                <input type="text" name="name" [(ngModel)]="newDistrict.name" placeholder="e.g. Ernakulam" required style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
-              </div>
-              <div class="form-group full-width" style="margin-bottom: 20px;">
-                <label>Status</label>
-                <select name="status" [(ngModel)]="newDistrict.status" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
-                  <option value="ACTIVE">Active</option>
-                  <option value="HIDDEN">Hidden</option>
-                </select>
-              </div>
-              <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" (click)="closeDistrictModal()" style="padding: 8px 15px; border: 1px solid #d1d5db; background: transparent; border-radius: 4px; cursor: pointer;">Cancel</button>
-                <button type="submit" class="action-btn-green" style="padding: 8px 15px;">Save</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
       <!-- Clients Tab -->
       <div *ngIf="activeTab === 'clients'">
         <div class="dashboard-header">
-          <h2>Clients</h2>
-          <button class="action-btn-green" (click)="openClientModal()"><i class='bx bx-plus'></i> Add Client</button>
+          <h2>Leads</h2>
+          <button class="action-btn-green" (click)="openClientModal()"><i class='bx bx-plus'></i> Add Lead</button>
         </div>
         <div class="panel table-panel">
           <table class="data-table">
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Client Name</th>
+                <th>Lead Name</th>
                 <th>Contact</th>
                 <th>Email</th>
                 <th>Interested In</th>
@@ -421,7 +304,10 @@
                   <span *ngIf="c.hoarding_name" style="background:#e8f6ef; color:#1e8449; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:500;">{{ c.hoarding_name }}</span>
                   <span *ngIf="!c.hoarding_name" style="color:#9ca3af; font-size:12px;">-</span>
                 </td>
-                <td><span class="text-green" [style.color]="c.status === 'ACTIVE' ? '#10b981' : '#ef4444'">{{ c.status | titlecase }}</span></td>
+                <td style="display: flex; align-items: center; gap: 10px;">
+                  <button *ngIf="c.hoarding_name" type="button" class="btn-sm" style="padding: 4px 10px; font-size: 11px; border-radius: 4px; border: 1px solid #d1d5db; background: #f3f4f6; color: #374151; font-weight: 500; cursor: pointer;" (click)="openConfirmBookingModal(c)">Update</button>
+                  <span class="text-green" [style.color]="c.status === 'ACTIVE' ? '#10b981' : (c.status === 'UNDER REVIEW' ? '#f59e0b' : '#ef4444')" style="font-weight: 600;">{{ c.status | titlecase }}</span>
+                </td>
                 <td class="actions">
                   <i class='bx bxs-show action-icon view' (click)="viewClient(c)" title="View Details" style="margin-right: 5px;"></i>
                   <i class='bx bxs-pencil action-icon edit' (click)="openClientModal(c)" title="Edit"></i> 
@@ -437,13 +323,13 @@
       <div class="modal-overlay" *ngIf="isClientModalOpen">
         <div class="modal-content" style="width: 500px;">
           <div class="modal-header">
-            <h3>{{ editingClientId ? 'Edit Client' : 'Add Client' }}</h3>
+            <h3>{{ editingClientId ? 'Edit Lead' : 'Add Lead' }}</h3>
             <button class="close-btn" (click)="closeClientModal()"><i class='bx bx-x'></i></button>
           </div>
           <div class="modal-body">
             <form (ngSubmit)="saveClient()">
               <div class="form-group full-width" style="margin-bottom: 15px;">
-                <label>Client Name *</label>
+                <label>Lead Name *</label>
                 <input type="text" name="name" [(ngModel)]="newClient.name" placeholder="e.g. ABC Media" required style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
@@ -460,7 +346,7 @@
                 <label>Address</label>
                 <textarea name="address" [(ngModel)]="newClient.address" rows="3" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;"></textarea>
               </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+              <div style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px;">
                 <div class="form-group">
                   <label>Interested In (Hoarding)</label>
                   <select name="hoarding_id" [(ngModel)]="newClient.hoarding_id" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
@@ -468,20 +354,10 @@
                     <option *ngFor="let h of hoardings" [ngValue]="h.id">{{ h.name }}</option>
                   </select>
                 </div>
-                <div class="form-group">
-                  <label>Status</label>
-                  <select name="status" [(ngModel)]="newClient.status" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
-                    <option value="ACTIVE">Active</option>
-                    <option value="HIDDEN">Hidden</option>
-                  </select>
-                </div>
+                
               </div>
-              <div *ngIf="newClient.hoarding_id && newClient.status !== 'HIDDEN'" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                <div class="form-group">
-                  <label>Payment (Amount)</label>
-                  <input type="number" name="payment" [(ngModel)]="newClient.payment" placeholder="e.g. 50000" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
-                </div>
-                <div class="form-group">
+              <div *ngIf="newClient.hoarding_id" style="margin-bottom: 20px;">
+                <div class="form-group full-width">
                   <label>Occupied Till</label>
                   <input type="date" name="occupied_till" [(ngModel)]="newClient.occupied_till" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
                 </div>
@@ -499,7 +375,7 @@
       <div class="modal-overlay" *ngIf="viewingClient">
         <div class="modal-content" style="width: 500px;">
           <div class="modal-header">
-            <h3>Client Details</h3>
+            <h3>Lead Details</h3>
             <button class="close-btn" (click)="closeViewClientModal()"><i class='bx bx-x'></i></button>
           </div>
           <div class="modal-body">
@@ -527,10 +403,6 @@
                   <span class="label" style="display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600;">Status</span>
                   <span class="text-green" [style.color]="viewingClient.status === 'ACTIVE' ? '#10b981' : '#ef4444'" style="font-weight: 600; font-size: 14px;">{{ viewingClient.status | titlecase }}</span>
                 </div>
-                <div class="detail-item" *ngIf="viewingClient.hoarding_amount">
-                  <span class="label" style="display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600;">Payment (Amount)</span>
-                  <span class="val" style="font-weight: 500; color: #374151; font-size: 14px;">₹{{ viewingClient.hoarding_amount }}</span>
-                </div>
                 <div class="detail-item" *ngIf="viewingClient.hoarding_occupied_till">
                   <span class="label" style="display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600;">Occupied Till</span>
                   <span class="val" style="font-weight: 500; color: #374151; font-size: 14px;">{{ viewingClient.hoarding_occupied_till | date:'dd MMM yyyy' }}</span>
@@ -545,21 +417,32 @@
       <div class="modal-overlay" *ngIf="isConfirmBookingModalOpen">
         <div class="modal-content" style="width: 450px;">
           <div class="modal-header">
-            <h3>Confirm Purchase</h3>
+            <h3>Booking Status</h3>
             <button class="close-btn" (click)="closeConfirmBookingModal()"><i class='bx bx-x'></i></button>
           </div>
           <div class="modal-body">
             <p style="margin-bottom: 20px; color: #4b5563; font-size: 14px;">
-              Mark <strong>{{ confirmBookingData.hoardingName }}</strong> as occupied? This will update the billboard's status on the main site.
+              Update booking status for <strong>{{ confirmBookingData.hoardingName || 'Lead' }}</strong>.
             </p>
+            <div *ngIf="confirmBookingData.isOccupied" style="background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 13px;">
+              <i class='bx bx-error-circle' style="vertical-align: middle; margin-right: 5px; font-size: 16px;"></i>
+              <strong>Warning:</strong> This hoarding is already occupied until <strong>{{ confirmBookingData.hoardingOccupiedTill | date:'dd MMM yyyy' }}</strong>. Confirming a new booking will replace it.
+            </div>
             <form (ngSubmit)="submitConfirmBooking()">
               <div class="form-group full-width" style="margin-bottom: 20px;">
+                <label>Action *</label>
+                <select name="action" [(ngModel)]="confirmBookingData.action" required style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+                  <option value="confirm">Confirm Booking</option>
+                  <option value="review">Under Review</option>
+                </select>
+              </div>
+              <div class="form-group full-width" *ngIf="confirmBookingData.action === 'confirm'" style="margin-bottom: 20px;">
                 <label>Occupied Till *</label>
                 <input type="date" name="occupied_till" [(ngModel)]="confirmBookingData.occupied_till" required style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
               </div>
               <div style="display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" (click)="closeConfirmBookingModal()" style="padding: 8px 15px; border: 1px solid #d1d5db; background: transparent; border-radius: 4px; cursor: pointer;">Cancel</button>
-                <button type="submit" class="action-btn-green" style="padding: 8px 15px;">Confirm Payment</button>
+                <button type="submit" class="action-btn-green" style="padding: 8px 15px;">Submit</button>
               </div>
             </form>
           </div>
@@ -578,8 +461,8 @@
               <tr>
                 <th>ID</th>
                 <th>Location Name</th>
-                <th>District</th>
-                <th>Client</th>
+                
+                
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -588,16 +471,41 @@
               <tr *ngFor="let l of locations">
                 <td>{{ l.id }}</td>
                 <td>{{ l.name }}</td>
-                <td>{{ l.district_name }}</td>
-                <td>{{ l.client_name }}</td>
+                
+                
                 <td><span class="text-green" [style.color]="l.status === 'ACTIVE' ? '#10b981' : '#ef4444'">{{ l.status | titlecase }}</span></td>
                 <td class="actions">
-                  <i class='bx bxs-pencil action-icon edit' (click)="openLocationModal(l)" title="Edit"></i> 
-                  <i class='bx bxs-trash-alt action-icon delete' (click)="deleteLocation(l.id)" title="Delete"></i>
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+                    <i class='bx bxs-show action-icon view' (click)="viewLocation(l)" title="View"></i>
+                    <i class='bx bxs-pencil action-icon edit' (click)="openLocationModal(l)" title="Edit"></i> 
+                    <i class='bx bxs-trash-alt action-icon delete' (click)="deleteLocation(l.id)" title="Delete"></i>
+                  </div>
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      
+      <!-- View Location Modal -->
+      <div class="modal-overlay" *ngIf="viewingLocation">
+        <div class="modal-content" style="width: 500px;">
+          <div class="modal-header">
+            <h3>View Location</h3>
+            <button class="close-btn" (click)="closeViewLocationModal()"><i class='bx bx-x'></i></button>
+          </div>
+          <div class="modal-body" style="padding-top: 10px;">
+            <p style="margin-bottom: 8px;"><strong>ID:</strong> {{ viewingLocation.id }}</p>
+            <p style="margin-bottom: 8px;"><strong>Name:</strong> {{ viewingLocation.name }}</p>
+            <p style="margin-bottom: 8px;"><strong>State:</strong> {{ viewingLocation.state || '-' }}</p>
+            <p style="margin-bottom: 8px;"><strong>District:</strong> {{ viewingLocation.district || '-' }}</p>
+            <p style="margin-bottom: 20px;"><strong>Status:</strong> <span [style.color]="viewingLocation.status === 'ACTIVE' ? '#10b981' : '#ef4444'">{{ viewingLocation.status | titlecase }}</span></p>
+            
+            <div style="display: flex; justify-content: flex-end;">
+              <button class="action-btn-green" (click)="closeViewLocationModal()">Close</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -610,29 +518,20 @@
           </div>
           <div class="modal-body">
             <form (ngSubmit)="saveLocation()">
-              <div class="form-group full-width" style="margin-bottom: 15px;">
-                <label>District *</label>
-                <select name="district_id" [(ngModel)]="newLocation.district_id" required style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
-                  <option *ngFor="let d of districts" [ngValue]="d.id">{{ d.name }}</option>
-                </select>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group">
+                  <label>State</label>
+                  <input type="text" name="state" [(ngModel)]="newLocation.state" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+                </div>
+                <div class="form-group">
+                  <label>District</label>
+                  <input type="text" name="district" [(ngModel)]="newLocation.district" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+                </div>
               </div>
               <div class="form-group full-width" style="margin-bottom: 15px;">
                 <label>Location Name *</label>
                 <input type="text" name="name" [(ngModel)]="newLocation.name" placeholder="e.g. Kakkanad Junction" required style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
-              </div>
-              <div class="form-group full-width" style="margin-bottom: 15px;">
-                <label>Description</label>
-                <textarea name="description" [(ngModel)]="newLocation.description" rows="2" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;"></textarea>
-              </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                <div class="form-group">
-                  <label>Latitude</label>
-                  <input type="text" name="latitude" [(ngModel)]="newLocation.latitude" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
-                </div>
-                <div class="form-group">
-                  <label>Longitude</label>
-                  <input type="text" name="longitude" [(ngModel)]="newLocation.longitude" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
-                </div>
               </div>
               <div class="form-group full-width" style="margin-bottom: 20px;">
                 <label>Status</label>
@@ -652,17 +551,30 @@
 
       <!-- Add/Edit Hoarding Tab -->
       <div *ngIf="activeTab === 'add-hoarding'">
-        <div class="dashboard-header">
-          <h2>{{ editingHoardingId ? 'Edit Hoarding' : 'Add Hoarding' }}</h2>
-          <p><a href="javascript:void(0)" (click)="setActiveTab('management')" style="color: #10b981; text-decoration: none;">← Back to Hoardings</a></p>
+        <div style="margin-bottom: 15px;">
+          <a href="javascript:void(0)" (click)="setActiveTab('management')" style="color: #1a1a3d; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='#e8192c'" onmouseout="this.style.color='#1a1a3d'">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back to Hoardings
+          </a>
+        </div>
+        <div class="dashboard-header" style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e5e7eb;">
+          <h2 style="margin: 0; font-size: 24px; color: #1a1a3d;">{{ editingHoardingId ? 'Edit Hoarding' : 'Add Hoarding' }}</h2>
         </div>
         <div class="panel form-panel">
           <form class="hoarding-form" (ngSubmit)="saveHoarding()">
             <div class="form-grid">
               <div class="form-group">
+                <label>State</label>
+                <input type="text" name="state" [(ngModel)]="newHoarding.state" placeholder="e.g. Kerala">
+              </div>
+              <div class="form-group">
+                <label>District</label>
+                <input type="text" name="district" [(ngModel)]="newHoarding.district" placeholder="e.g. Ernakulam">
+              </div>
+              <div class="form-group">
                 <label>Location *</label>
                 <select name="location_id" [(ngModel)]="newHoarding.location_id" (ngModelChange)="onLocationSelectForHoarding($event)" required>
-                  <option *ngFor="let loc of locations" [ngValue]="loc.id">{{ loc.name }}</option>
+                  <option *ngFor="let loc of activeLocations" [ngValue]="loc.id">{{ loc.name }}</option>
                 </select>
               </div>
               <div class="form-group">
@@ -672,6 +584,10 @@
               <div class="form-group full-width">
                 <label>Description</label>
                 <textarea rows="3" name="description" [(ngModel)]="newHoarding.description" placeholder="Description about the hoarding..."></textarea>
+              </div>
+              <div class="form-group full-width">
+                <label>Dimensions</label>
+                <input type="text" name="dimensions" [(ngModel)]="newHoarding.dimensions" placeholder="e.g. 20ft x 10ft">
               </div>
               <div class="form-group">
                 <label>Availability *</label>
@@ -684,10 +600,7 @@
                 <label>Occupied Till</label>
                 <input type="date" name="occupied_till" [(ngModel)]="newHoarding.occupied_till">
               </div>
-              <div class="form-group">
-                <label>Amount / Price *</label>
-                <input type="number" name="amount" [(ngModel)]="newHoarding.amount" placeholder="e.g. 50000" required>
-              </div>
+
               <div class="form-group">
                 <label>Latitude</label>
                 <input type="text" name="latitude" [(ngModel)]="newHoarding.latitude" placeholder="10.0012">
@@ -702,10 +615,27 @@
               </div>
               
               <div class="form-group full-width">
-                <label>Upload Image *</label>
+                <label>Upload Images <span style="font-weight:400; color:#6b7280;">(select multiple)</span></label>
+                <!-- Existing images preview -->
+                <div *ngIf="editingHoardingId && existingImages.length > 0" style="margin-bottom: 12px;">
+                  <p style="font-size: 12px; color: #6b7280; margin-bottom: 8px; font-weight: 600;">Current Images:</p>
+                  <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <div *ngFor="let img of existingImages" style="position: relative;">
+                      <img [src]="backendUrl + img.image_path" style="height: 80px; width: 110px; object-fit: cover; border-radius: 8px; border: 1.5px solid #e2e8f0;" />
+                      <button type="button" (click)="deleteHoardingImage(img.id)" style="position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height:1;">✕</button>
+                    </div>
+                  </div>
+                </div>
+                <!-- New files preview -->
+                <div *ngIf="selectedFiles.length > 0" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
+                  <div *ngFor="let f of selectedFiles; let i = index" style="position: relative;">
+                    <img [src]="filePreviews[i]" style="height: 80px; width: 110px; object-fit: cover; border-radius: 8px; border: 1.5px solid #10b981;" />
+                    <button type="button" (click)="removeSelectedFile(i)" style="position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height:1;">✕</button>
+                  </div>
+                </div>
                 <div class="file-drop-area">
-                  <span class="file-msg">{{ selectedFile ? selectedFile.name : 'Drag & drop image here or click to upload' }}</span>
-                  <input class="file-input" type="file" (change)="onFileSelect($event)" accept="image/*">
+                  <span class="file-msg">{{ selectedFiles.length > 0 ? selectedFiles.length + ' file(s) selected — click to add more' : 'Click to upload images (select multiple)' }}</span>
+                  <input class="file-input" type="file" (change)="onFileSelect($event)" accept="image/*" multiple>
                 </div>
               </div>
             </div>
@@ -800,3 +730,33 @@
 
   </div>
 </div>
+
+  <!-- Update Status Modal -->
+  <div class="modal-overlay" *ngIf="showStatusModal">
+    <div class="modal-content" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3>Update Hoarding Status</h3>
+        <button class="close-btn" (click)="closeStatusModal()"><i class='bx bx-x'></i></button>
+      </div>
+      <form (ngSubmit)="submitStatusUpdate()" #statusForm="ngForm">
+        <div class="modal-body">
+          <div class="form-group full-width" style="margin-bottom: 20px;">
+            <label>Availability *</label>
+            <select name="availability_status" [(ngModel)]="statusUpdateData.availability_status" required style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+              <option value="AVAILABLE">Available</option>
+              <option value="OCCUPIED">Booked</option>
+            </select>
+          </div>
+          <div class="form-group full-width" *ngIf="statusUpdateData.availability_status === 'OCCUPIED'" style="margin-bottom: 20px;">
+            <label>Occupied Till *</label>
+            <input type="date" name="occupied_till" [(ngModel)]="statusUpdateData.occupied_till" required style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" (click)="closeStatusModal()" style="padding: 8px 15px; border: 1px solid #d1d5db; background: transparent; border-radius: 4px; cursor: pointer;">Cancel</button>
+            <button type="submit" class="action-btn-green" [disabled]="!statusForm.valid || (statusUpdateData.availability_status === 'OCCUPIED' && !statusUpdateData.occupied_till)">Update Status</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+

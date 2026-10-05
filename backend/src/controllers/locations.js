@@ -3,10 +3,8 @@ const pool = require('../config/db');
 const getAll = async (req, res) => {
   try {
     const [rows] = await pool.query(`
-      SELECT l.*, c.name as client_name, d.name as district_name 
-      FROM locations l 
-      LEFT JOIN clients c ON l.client_id = c.id
-      LEFT JOIN districts d ON l.district_id = d.id
+      SELECT * 
+      FROM locations 
     `);
     res.json({ success: true, data: rows });
   } catch (error) {
@@ -32,7 +30,7 @@ const getById = async (req, res) => {
 const create = async (req, res) => {
   try {
     const body = req.body;
-    const fields = Object.keys(body).filter(k => ["district_id","client_id","name","description","latitude","longitude","google_maps_url","status"].includes(k));
+    const fields = Object.keys(body).filter(k => ["name","state","district","status"].includes(k));
     const values = fields.map(k => body[k]);
     const placeholders = fields.map(() => '?').join(', ');
     if (fields.length === 0) {
@@ -51,7 +49,7 @@ const create = async (req, res) => {
 const update = async (req, res) => {
   try {
     const body = req.body;
-    const fields = Object.keys(body).filter(k => ["district_id","client_id","name","description","latitude","longitude","google_maps_url","status"].includes(k));
+    const fields = Object.keys(body).filter(k => ["name","state","district","status"].includes(k));
     const values = fields.map(k => body[k]);
     if (fields.length === 0) {
       res.status(400).json({ success: false, message: 'No valid fields provided' });

@@ -40,22 +40,18 @@ app.get('/api/health', async (req, res) => {
 });
 
 const authRoutes = require('./src/routes/auth');
-const stateRoutes = require('./src/routes/states');
-const districtRoutes = require('./src/routes/districts');
+
 const clientRoutes = require('./src/routes/clients');
 const locationRoutes = require('./src/routes/locations');
 const hoardingRoutes = require('./src/routes/hoardings');
 const imageRoutes = require('./src/routes/images');
-const leadRoutes = require('./src/routes/leads');
 
 app.use('/api/auth', authRoutes);
-app.use('/api/states', stateRoutes);
-app.use('/api/districts', districtRoutes);
+
 app.use('/api/clients', clientRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/hoardings', hoardingRoutes);
 app.use('/api/images', imageRoutes);
-app.use('/api/leads', leadRoutes);
 
 const PORT = process.env.PORT || 5000;
 
@@ -67,5 +63,19 @@ app.listen(PORT, async () => {
     connection.release();
   } catch (error) {
     console.error(`Database connection failed:`, error.message);
+  }
+});
+
+// Run every hour to check and update expired hoardings
+const cron = require('node-cron');
+cron.schedule('0 * * * *', async () => {
+  try {
+    console.log('Running scheduled job: Auto-expiring hoardings...');
+    const [result] = await pool.query('UPDATE hoardings SET availability_status = "AVAILABLE", occupied_till = NULL WHERE availability_status = "OCCUPIED" AND occupied_till < CURDATE()');
+    if (result.affectedRows > 0) {
+      console.log(`Auto-expired ${result.affectedRows} hoardings.`);
+    }
+  } catch (error) {
+    console.error('Error auto-expiring hoardings:', error.message);
   }
 });

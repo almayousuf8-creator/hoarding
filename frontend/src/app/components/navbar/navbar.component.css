@@ -1,0 +1,77 @@
+.main-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  padding: 0 60px;
+  height: 95px;
+  color: #333333;
+  font-family: 'Montserrat', 'Poppins', 'Segoe UI', sans-serif;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.center-links {
+  display: flex;
+  gap: 30px;
+}
+
+.center-links a {
+  color: #4e4e4e;
+  font-family: 'Outfit', 'Montserrat', sans-serif;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.center-links a:hover, .center-links a.active {
+  color: #f81b2c;
+}
+
+.center-links a.active::after {
+  display: none;
+}
+
+.right-links .nav-cta-btn {
+  background-color: #f81b2c;
+  color: #ffffff;
+  padding: 10px 10px 10px 30px;
+  border: none;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 700;
+  font-family: 'DM Sans', 'Montserrat', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s ease;
+}
+
+.right-links .nav-cta-btn i {
+  background: rgba(0,0,0,0.15);
+  border-radius: 50%;
+  padding: 5px;
+  font-size: 18px;
+}
+
+.right-links .nav-cta-btn:hover {
+  background-color: #d11221;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(248, 27, 44, 0.3);
+}

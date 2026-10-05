@@ -6,21 +6,23 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { environment } from '../../../environments/environment';
 
+import { NavbarComponent } from '../navbar/navbar.component';
+
+
 @Component({
   selector: 'app-hoarding-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, NavbarComponent],
+
   templateUrl: './hoarding-list.component.html',
   styleUrls: ['./hoarding-list.component.css']
 })
 export class HoardingListComponent implements OnInit {
-  states: any[] = [];
-  districts: any[] = [];
   locations: any[] = [];
   hoardings: any[] = [];
 
-  selectedStateId: number | null = null;
-  selectedDistrictId: number | null = null;
+  selectedState: string | null = null;
+  selectedDistrict: string | null = null;
   selectedLocationId: number | null = null;
 
   openDropdown: 'state' | 'district' | 'location' | null = null;
@@ -36,7 +38,7 @@ export class HoardingListComponent implements OnInit {
   constructor(private apiService: ApiService, public authService: AuthService) {}
 
   ngOnInit() {
-    this.loadStates();
+    this.loadLocations();
     this.loadHoardings();
   }
 
@@ -47,67 +49,164 @@ export class HoardingListComponent implements OnInit {
     }
   }
 
-  loadStates() {
-    this.apiService.getStates().subscribe({
+  loadLocations() {
+    this.apiService.getLocations().subscribe({
       next: (res) => {
-        if (res.success) this.states = res.data;
+        if (res.success) {
+          this.locations = res.data.filter((l: any) => l.status === 'ACTIVE');
+        }
       }
     });
   }
 
-  onStateChange() {
-    this.selectedDistrictId = null;
-    this.selectedLocationId = null;
-    this.districts = [];
-    this.locations = [];
-    this.loadHoardings();
+  get uniqueStates(): string[] {
+    const stateMap = new Map<string, string>();
+    const addState = (s: string) => {
+      if (!s || s.trim() === '') return;
+      const lower = s.trim().toLowerCase();
+      if (!stateMap.has(lower)) stateMap.set(lower, s.trim().charAt(0).toUpperCase() + s.trim().slice(1).toLowerCase());
+    };
+    this.locations.forEach(l => addState(l.state));
+    return Array.from(stateMap.values()).sort();
+  }
 
-    if (this.selectedStateId) {
-      this.apiService.getDistricts(this.selectedStateId).subscribe({
-        next: (res) => {
-          if (res.success) {
-            // Filter on frontend if backend doesn't support query params yet
-            this.districts = res.data.filter((d: any) => d.state_id == this.selectedStateId);
-          }
-        }
-      });
+  get uniqueDistricts(): string[] {
+    const distMap = new Map<string, string>();
+    const addDist = (s: string, d: string) => {
+      if (!d || d.trim() === '') return;
+      if (!this.selectedState || (s && s.trim().toLowerCase() === this.selectedState.toLowerCase())) {
+        const lower = d.trim().toLowerCase();
+        if (!distMap.has(lower)) distMap.set(lower, d.trim().charAt(0).toUpperCase() + d.trim().slice(1).toLowerCase());
+      }
+    };
+    this.locations.forEach(l => addDist(l.state, l.district));
+    return Array.from(distMap.values()).sort();
+  }
+
+  get filteredLocations(): any[] {
+    return this.locations.filter(l => {
+      // Find all hoardings linked to this location
+      const linkedHoardings = this.hoardings.filter(h => h.location_id === l.id);
+      
+      const hasMatchingState = () => {
+        if (!this.selectedState) return true;
+        const target = this.selectedState.toLowerCase();
+        if (l.state && l.state.trim().toLowerCase() === target) return true;
+        return linkedHoardings.some(h => h.state && h.state.trim().toLowerCase() === target);
+      };
+
+      const hasMatchingDistrict = () => {
+        if (!this.selectedDistrict) return true;
+        const target = this.selectedDistrict.toLowerCase();
+        if (l.district && l.district.trim().toLowerCase() === target) return true;
+        return linkedHoardings.some(h => h.district && h.district.trim().toLowerCase() === target);
+      };
+
+      return l.status === 'ACTIVE' && hasMatchingState() && hasMatchingDistrict();
+    });
+  }
+
+  selectState(state: string | null, event: Event) {
+    event.stopPropagation();
+    this.selectedState = state;
+    this.selectedDistrict = null;
+    this.selectedLocationId = null;
+    this.openDropdown = null;
+  }
+
+  selectDistrict(district: string | null, event: Event) {
+    event.stopPropagation();
+    this.selectedDistrict = district;
+    this.selectedLocationId = null;
+    this.openDropdown = null;
+  }
+
+  selectLocation(locId: number | null, event: Event) {
+    event.stopPropagation();
+    this.selectedLocationId = locId;
+    this.openDropdown = null;
+  }
+
+  getSelectedStateName() {
+    return this.selectedState || 'All States';
+  }
+
+  getSelectedDistrictName() {
+    return this.selectedDistrict || 'All Districts';
+  }
+
+  getSelectedLocationName() {
+    if (!this.selectedLocationId) return 'All Locations';
+    const loc = this.locations.find(l => l.id === this.selectedLocationId);
+    return loc ? loc.name : 'All Locations';
+  }
+
+  toggleDropdown(dropdown: 'state' | 'district' | 'location', event: Event) {
+    event.stopPropagation();
+    if (this.openDropdown === dropdown) {
+      this.openDropdown = null;
+    } else {
+      if (dropdown === 'district' && !this.selectedState) return;
+      if (dropdown === 'location' && !this.selectedDistrict) return;
+      this.openDropdown = dropdown;
     }
   }
 
-  onDistrictChange() {
+  @HostListener('document:click')
+  closeDropdowns() {
+    this.openDropdown = null;
+  }
+
+  resetFilters() {
+    this.selectedState = null;
+    this.selectedDistrict = null;
     this.selectedLocationId = null;
-    this.locations = [];
-    this.loadHoardings();
+    this.loadHoardings(true);
+  }
 
-    if (this.selectedDistrictId) {
-      this.apiService.getLocations(this.selectedDistrictId).subscribe({
-        next: (res) => {
-          if (res.success) {
-            this.locations = res.data.filter((l: any) => l.district_id == this.selectedDistrictId);
-          }
-        }
-      });
+  
+  getLocationHeading() {
+    if (this.selectedLocationId) {
+      return this.getSelectedLocationName();
+    } else if (this.selectedDistrict) {
+      return this.selectedDistrict;
+    } else if (this.selectedState) {
+      return this.selectedState;
     }
+    return 'All Locations';
   }
 
-  onLocationChange() {
-    this.loadHoardings();
+  onSearch() {
+    this.loadHoardings(true);
   }
 
-  loadHoardings() {
+  loadHoardings(scrollToResults: boolean = false) {
     this.isLoading = true;
-    this.apiService.getHoardings(this.selectedLocationId || undefined).subscribe({
+    this.apiService.getHoardings().subscribe({
       next: (res) => {
         this.isLoading = false;
         if (res.success) {
-          let filtered = res.data;
-          // Apply frontend filtering to compensate for basic backend implementation
+          let filtered = res.data.filter((h: any) => h.loc_status !== 'HIDDEN');
+
           if (this.selectedLocationId) {
             filtered = filtered.filter((h: any) => h.location_id == this.selectedLocationId);
+          } else if (this.selectedDistrict) {
+            filtered = filtered.filter((h: any) => {
+              const loc = this.locations.find(l => l.id == h.location_id);
+              return (h.district && h.district.trim().toLowerCase() === this.selectedDistrict!.toLowerCase()) ||
+                     (loc && loc.district && loc.district.trim().toLowerCase() === this.selectedDistrict!.toLowerCase());
+            });
+          } else if (this.selectedState) {
+            filtered = filtered.filter((h: any) => {
+              const loc = this.locations.find(l => l.id == h.location_id);
+              return (h.state && h.state.trim().toLowerCase() === this.selectedState!.toLowerCase()) ||
+                     (loc && loc.state && loc.state.trim().toLowerCase() === this.selectedState!.toLowerCase());
+            });
           }
+
           this.hoardings = filtered;
-          
-          if (this.selectedStateId && this.selectedDistrictId && this.selectedLocationId) {
+
+          if (scrollToResults) {
             setTimeout(() => {
               const resultsSection = document.getElementById('results');
               if (resultsSection) {
@@ -129,114 +228,21 @@ export class HoardingListComponent implements OnInit {
     this.leadErrorMessage = '';
     
     this.apiService.submitLead(this.newLead).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.isSubmitting = false;
         if (res.success) {
-          this.leadSuccessMessage = 'Message sent successfully! We will get back to you soon.';
+          this.leadSuccessMessage = 'Your query has been sent successfully. We will get back to you soon!';
           this.newLead = { name: '', email: '', subject: '', message: '' };
-          setTimeout(() => this.leadSuccessMessage = '', 5000);
+          setTimeout(() => { this.leadSuccessMessage = ''; }, 5000);
         } else {
-          this.leadErrorMessage = res.message || 'Failed to send message.';
+          this.leadErrorMessage = res.message || 'Failed to submit query.';
         }
       },
-      error: () => {
+      error: (e: any) => {
         this.isSubmitting = false;
-        this.leadErrorMessage = 'An error occurred. Please try again.';
+        console.error(e);
+        this.leadErrorMessage = e.error?.message || 'An error occurred. Please try again.';
       }
     });
-  }
-
-  toggleDropdown(dropdown: 'state' | 'district' | 'location', event: MouseEvent) {
-    event.stopPropagation();
-    if (dropdown === 'district' && !this.selectedStateId) return;
-    if (dropdown === 'location' && !this.selectedDistrictId) return;
-
-    this.openDropdown = this.openDropdown === dropdown ? null : dropdown;
-  }
-
-  closeDropdowns() {
-    this.openDropdown = null;
-  }
-
-  @HostListener('document:click')
-  onDocumentClick() {
-    this.closeDropdowns();
-  }
-
-  selectState(stateId: number | null, event: MouseEvent) {
-    event.stopPropagation();
-    if (this.selectedStateId === stateId) {
-      this.openDropdown = null;
-      return;
-    }
-    this.selectedStateId = stateId;
-    this.openDropdown = null;
-    this.onStateChange();
-  }
-
-  selectDistrict(districtId: number | null, event: MouseEvent) {
-    event.stopPropagation();
-    if (this.selectedDistrictId === districtId) {
-      this.openDropdown = null;
-      return;
-    }
-    this.selectedDistrictId = districtId;
-    this.openDropdown = null;
-    this.onDistrictChange();
-  }
-
-  selectLocation(locationId: number | null, event: MouseEvent) {
-    event.stopPropagation();
-    if (this.selectedLocationId === locationId) {
-      this.openDropdown = null;
-      return;
-    }
-    this.selectedLocationId = locationId;
-    this.openDropdown = null;
-    this.onLocationChange();
-  }
-
-  resetFilters() {
-    this.selectedStateId = null;
-    this.selectedDistrictId = null;
-    this.selectedLocationId = null;
-    this.districts = [];
-    this.locations = [];
-    this.openDropdown = null;
-    this.loadHoardings();
-  }
-
-  getSelectedStateName(): string {
-    if (!this.selectedStateId) return 'Select State';
-    const s = this.states.find(st => st.id == this.selectedStateId);
-    return s ? s.name : 'Select State';
-  }
-
-  getSelectedDistrictName(): string {
-    if (!this.selectedDistrictId) return 'Select District';
-    const d = this.districts.find(dt => dt.id == this.selectedDistrictId);
-    return d ? d.name : 'Select District';
-  }
-
-  getSelectedLocationName(): string {
-    if (!this.selectedLocationId) return 'Select Location';
-    const l = this.locations.find(lc => lc.id == this.selectedLocationId);
-    return l ? l.name : 'Select Location';
-  }
-
-  getLocationHeading(): string {
-    if (this.selectedLocationId) {
-      const loc = this.locations.find(l => l.id == this.selectedLocationId);
-      if (loc) return loc.name;
-    }
-    if (this.selectedDistrictId) {
-      const dist = this.districts.find(d => d.id == this.selectedDistrictId);
-      if (dist) return dist.name;
-    }
-    if (this.selectedStateId) {
-      const st = this.states.find(s => s.id == this.selectedStateId);
-      if (st) return st.name;
-    }
-    return 'Ernakulam';
   }
 }

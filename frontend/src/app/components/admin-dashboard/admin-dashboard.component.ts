@@ -20,31 +20,26 @@ export class AdminDashboardComponent implements OnInit {
   hoardings: any[] = [];
   editingHoardingId: number | null = null;
   viewingHoarding: any = null;
-  selectedFile: File | null = null;
+  currentImageIndex: number = 0;
+  selectedFile: File | null = null; // kept for legacy
+  selectedFiles: File[] = [];
+  filePreviews: string[] = [];
+  existingImages: any[] = [];
 
-  states: any[] = [];
-  isStateModalOpen: boolean = false;
-  editingStateId: number | null = null;
-  newState: any = { name: '', status: 'ACTIVE' };
-
-  districts: any[] = [];
-  isDistrictModalOpen: boolean = false;
-  editingDistrictId: number | null = null;
-  newDistrict: any = { state_id: 1, name: '', status: 'ACTIVE' };
 
   clients: any[] = [];
   isClientModalOpen: boolean = false;
   editingClientId: number | null = null;
-  newClient: any = { name: '', email: '', phone: '', address: '', status: 'ACTIVE', hoarding_id: null };
+  newClient: any = { name: '', email: '', phone: '', address: '', hoarding_id: null };
   viewingClient: any = null;
 
   isConfirmBookingModalOpen: boolean = false;
-  confirmBookingData: any = { clientId: null, hoardingName: '', occupied_till: '' };
+  confirmBookingData: any = { clientId: null, hoardingName: '', action: 'confirm', occupied_till: '' };
 
   locations: any[] = [];
   isLocationModalOpen: boolean = false;
   editingLocationId: number | null = null;
-  newLocation: any = { district_id: 1, client_id: 1, name: '', description: '', latitude: '', longitude: '', google_maps_url: '', status: 'ACTIVE' };
+  newLocation: any = { name: '', state: '', district: '', status: 'ACTIVE' };
 
   leads: any[] = [];
   unreadLeadsCount: number = 0;
@@ -53,10 +48,13 @@ export class AdminDashboardComponent implements OnInit {
   notifications: string[] = [];
   showNotifications: boolean = false;
 
-  filterStateId: number | null = null;
-  filterDistrictId: number | null = null;
+  filterState: string = '';
+  filterDistrict: string = '';
   filterLocationId: number | null = null;
   filterStatus: string | null = null;
+
+  showStatusModal: boolean = false;
+  statusUpdateData: any = { id: null, availability_status: '', occupied_till: '' };
 
   newHoarding: any = {
     location_id: 1,
@@ -64,18 +62,17 @@ export class AdminDashboardComponent implements OnInit {
     description: '',
     availability_status: 'AVAILABLE',
     occupied_till: null,
-    amount: null,
     latitude: '',
     longitude: '',
-    google_maps_url: ''
+    google_maps_url: '',
+    state: '',
+    district: ''
   };
 
   constructor(private authService: AuthService, private apiService: ApiService) {}
 
   ngOnInit() {
     this.fetchHoardings();
-    this.fetchStates();
-    this.fetchDistricts();
     this.fetchClients();
     this.fetchLocations();
     this.fetchLeads();
@@ -146,19 +143,82 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
+      
+  get filteredLocations(): any[] {
+    return this.locations.filter(l => {
+      // Find all hoardings linked to this location
+      const linkedHoardings = this.hoardings.filter(h => h.location_id === l.id);
+      
+      const hasMatchingState = () => {
+        if (!this.filterState) return true;
+        const target = this.filterState.toLowerCase();
+        if (l.state && l.state.trim().toLowerCase() === target) return true;
+        return linkedHoardings.some(h => h.state && h.state.trim().toLowerCase() === target);
+      };
+
+      const hasMatchingDistrict = () => {
+        if (!this.filterDistrict) return true;
+        const target = this.filterDistrict.toLowerCase();
+        if (l.district && l.district.trim().toLowerCase() === target) return true;
+        return linkedHoardings.some(h => h.district && h.district.trim().toLowerCase() === target);
+      };
+
+      return hasMatchingState() && hasMatchingDistrict();
+    });
+  }
+
+  get activeFilteredLocations(): any[] {
+    return this.filteredLocations.filter(l => l.status === 'ACTIVE');
+  }
+
+  get activeLocations(): any[] {
+    return this.locations.filter(l => l.status === 'ACTIVE');
+  }
+
+  get uniqueStates(): string[] {
+    const stateMap = new Map<string, string>();
+    const addState = (s: string) => {
+      if (!s || s.trim() === '') return;
+      const lower = s.trim().toLowerCase();
+      if (!stateMap.has(lower)) stateMap.set(lower, s.trim().charAt(0).toUpperCase() + s.trim().slice(1).toLowerCase());
+    };
+    this.activeLocations.forEach(l => addState(l.state));
+    return Array.from(stateMap.values()).sort();
+  }
+
+    get uniqueDistricts(): string[] {
+    const distMap = new Map<string, string>();
+    const addDist = (s: string, d: string) => {
+      if (!d || d.trim() === '') return;
+      if (!this.filterState || (s && s.trim().toLowerCase() === this.filterState.toLowerCase())) {
+        const lower = d.trim().toLowerCase();
+        if (!distMap.has(lower)) distMap.set(lower, d.trim().charAt(0).toUpperCase() + d.trim().slice(1).toLowerCase());
+      }
+    };
+    this.activeLocations.forEach(l => addDist(l.state, l.district));
+    return Array.from(distMap.values()).sort();
+  }
+
+  onStateFilterChange() {
+    this.filterDistrict = '';
+  }
+
   get filteredHoardings() {
     return this.hoardings.filter(h => {
       let match = true;
-      if (this.filterStatus && this.filterStatus !== 'ALL' && h.availability_status !== this.filterStatus) match = false;
+      if (this.filterStatus && this.filterStatus !== 'ALL' && this.filterStatus !== 'null' && h.availability_status !== this.filterStatus) match = false;
       
       const loc = this.locations.find(l => l.id === h.location_id);
-      if (this.filterLocationId && this.filterLocationId !== -1 && loc?.id !== Number(this.filterLocationId)) match = false;
       
-      const dist = loc ? this.districts.find(d => d.id === loc.district_id) : null;
-      if (this.filterDistrictId && this.filterDistrictId !== -1 && dist?.id !== Number(this.filterDistrictId)) match = false;
+      if (this.filterState && this.filterState !== '') {
+        if (!loc || loc.state.toLowerCase() !== this.filterState.toLowerCase()) match = false;
+      }
       
-      const state = dist ? this.states.find(s => s.id === dist.state_id) : null;
-      if (this.filterStateId && this.filterStateId !== -1 && state?.id !== Number(this.filterStateId)) match = false;
+      if (this.filterDistrict && this.filterDistrict !== '') {
+        if (!loc || loc.district.toLowerCase() !== this.filterDistrict.toLowerCase()) match = false;
+      }
+
+      if (this.filterLocationId && this.filterLocationId !== -1 && String(this.filterLocationId) !== 'null' && loc?.id !== Number(this.filterLocationId)) match = false;
       
       return match;
     });
@@ -172,105 +232,6 @@ export class AdminDashboardComponent implements OnInit {
     return this.hoardings.filter(h => h.availability_status === 'OCCUPIED').length;
   }
 
-  // --- States Methods ---
-  fetchStates() {
-    this.apiService.getStates().subscribe({
-      next: (res) => { if (res.success) this.states = res.data; },
-      error: (e) => console.error(e)
-    });
-  }
-
-  openStateModal(state?: any) {
-    if (state) {
-      this.editingStateId = state.id;
-      this.newState = { name: state.name, status: state.status };
-    } else {
-      this.editingStateId = null;
-      this.newState = { name: '', status: 'ACTIVE' };
-    }
-    this.isStateModalOpen = true;
-  }
-
-  closeStateModal() {
-    this.isStateModalOpen = false;
-  }
-
-  saveState() {
-    if (this.editingStateId) {
-      this.apiService.updateState(this.editingStateId, this.newState).subscribe({
-        next: () => { this.fetchStates(); this.closeStateModal(); },
-        error: (e) => console.error(e)
-      });
-    } else {
-      this.apiService.createState(this.newState).subscribe({
-        next: () => { this.fetchStates(); this.closeStateModal(); },
-        error: (e) => console.error(e)
-      });
-    }
-  }
-
-  deleteState(id: number) {
-    if (confirm('Are you sure you want to delete this state?')) {
-      this.apiService.deleteState(id).subscribe({
-        next: () => this.fetchStates(),
-        error: (e) => {
-          console.error(e);
-          alert(e.error?.message || 'Failed to delete state.');
-        }
-      });
-    }
-  }
-  // --- End States Methods ---
-
-  // --- Districts Methods ---
-  fetchDistricts() {
-    this.apiService.getDistricts().subscribe({
-      next: (res) => { if (res.success) this.districts = res.data; },
-      error: (e) => console.error(e)
-    });
-  }
-
-  openDistrictModal(district?: any) {
-    if (district) {
-      this.editingDistrictId = district.id;
-      this.newDistrict = { state_id: district.state_id, name: district.name, status: district.status };
-    } else {
-      this.editingDistrictId = null;
-      this.newDistrict = { state_id: this.states.length > 0 ? this.states[0].id : 1, name: '', status: 'ACTIVE' };
-    }
-    this.isDistrictModalOpen = true;
-  }
-
-  closeDistrictModal() {
-    this.isDistrictModalOpen = false;
-  }
-
-  saveDistrict() {
-    if (this.editingDistrictId) {
-      this.apiService.updateDistrict(this.editingDistrictId, this.newDistrict).subscribe({
-        next: () => { this.fetchDistricts(); this.closeDistrictModal(); },
-        error: (e) => console.error(e)
-      });
-    } else {
-      this.apiService.createDistrict(this.newDistrict).subscribe({
-        next: () => { this.fetchDistricts(); this.closeDistrictModal(); },
-        error: (e) => console.error(e)
-      });
-    }
-  }
-
-  deleteDistrict(id: number) {
-    if (confirm('Are you sure you want to delete this district?')) {
-      this.apiService.deleteDistrict(id).subscribe({
-        next: () => this.fetchDistricts(),
-        error: (e) => {
-          console.error(e);
-          alert(e.error?.message || 'Failed to delete district.');
-        }
-      });
-    }
-  }
-  // --- End Districts Methods ---
 
   // --- Clients Methods ---
   fetchClients() {
@@ -296,14 +257,13 @@ export class AdminDashboardComponent implements OnInit {
         email: client.email, 
         phone: client.phone, 
         address: client.address, 
-        status: client.status, 
         hoarding_id: client.hoarding_id || null,
         payment: client.hoarding_amount || null,
         occupied_till: client.hoarding_occupied_till ? new Date(client.hoarding_occupied_till).toISOString().split('T')[0] : null
       };
     } else {
       this.editingClientId = null;
-      this.newClient = { name: '', email: '', phone: '', address: '', status: 'ACTIVE', hoarding_id: null, payment: null, occupied_till: null };
+      this.newClient = { name: '', email: '', phone: '', address: '', hoarding_id: null, payment: null, occupied_till: null };
     }
     this.isClientModalOpen = true;
   }
@@ -335,20 +295,20 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   deleteClient(id: number) {
-    if (confirm('Are you sure you want to delete this client?')) {
+    if (confirm('Are you sure you want to delete this lead?')) {
       this.apiService.deleteClient(id).subscribe({
         next: (res: any) => {
           this.fetchClients();
           if (res && res.hoardingFreed) {
-            this.notifications.unshift(res.message);
+            this.notifications.unshift('A booked hoarding is now available!');
             this.showNotifications = true;
-            setTimeout(() => { this.showNotifications = false; }, 5000); // Auto-hide after 5s
+            setTimeout(() => { this.showNotifications = false; }, 5000);
             this.fetchHoardings();
           }
         },
         error: (e) => {
           console.error(e);
-          alert(e.error?.message || 'Failed to delete client.');
+          alert(e.error?.message || 'Failed to delete lead.');
         }
       });
     }
@@ -358,7 +318,10 @@ export class AdminDashboardComponent implements OnInit {
     this.confirmBookingData = {
       clientId: client.id,
       hoardingName: client.hoarding_name,
-      occupied_till: ''
+      action: 'confirm',
+      occupied_till: '',
+      isOccupied: client.hoarding_availability_status === 'OCCUPIED',
+      hoardingOccupiedTill: client.hoarding_occupied_till
     };
     this.isConfirmBookingModalOpen = true;
   }
@@ -368,23 +331,36 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   submitConfirmBooking() {
-    if (!this.confirmBookingData.occupied_till) {
-      alert("Please select an 'Occupied Till' date.");
-      return;
-    }
-    this.apiService.confirmBooking(this.confirmBookingData.clientId, { occupied_till: this.confirmBookingData.occupied_till }).subscribe({
-      next: (res: any) => {
-        this.notifications.unshift(res.message);
-        this.showNotifications = true;
-        setTimeout(() => { this.showNotifications = false; }, 5000);
-        this.fetchHoardings();
-        this.closeConfirmBookingModal();
-      },
-      error: (e) => {
-        console.error(e);
-        alert(e.error?.message || 'Failed to confirm booking.');
+    if (this.confirmBookingData.action === 'confirm') {
+      if (!this.confirmBookingData.occupied_till) {
+        alert("Please select an 'Occupied Till' date.");
+        return;
       }
-    });
+      this.apiService.confirmBooking(this.confirmBookingData.clientId, { occupied_till: this.confirmBookingData.occupied_till }).subscribe({
+        next: (res: any) => {
+          
+          this.fetchHoardings();
+          this.fetchClients();
+          this.closeConfirmBookingModal();
+        },
+        error: (e) => {
+          console.error(e);
+          alert(e.error?.message || 'Failed to confirm booking.');
+        }
+      });
+    } else {
+      this.apiService.updateClientStatus(this.confirmBookingData.clientId, 'UNDER REVIEW').subscribe({
+        next: (res: any) => {
+          
+          this.fetchClients();
+          this.closeConfirmBookingModal();
+        },
+        error: (e) => {
+          console.error(e);
+          alert(e.error?.message || 'Failed to update status.');
+        }
+      });
+    }
   }
   // --- End Clients Methods ---
 
@@ -400,25 +376,17 @@ export class AdminDashboardComponent implements OnInit {
     if (location) {
       this.editingLocationId = location.id;
       this.newLocation = { 
-        district_id: location.district_id, 
-        client_id: location.client_id, 
         name: location.name, 
-        description: location.description,
-        latitude: location.latitude,
-        longitude: location.longitude,
-        google_maps_url: location.google_maps_url,
+        state: location.state, 
+        district: location.district, 
         status: location.status 
       };
     } else {
       this.editingLocationId = null;
       this.newLocation = { 
-        district_id: this.districts.length > 0 ? this.districts[0].id : 1, 
-        client_id: this.clients.length > 0 ? this.clients[0].id : 1, 
         name: '', 
-        description: '', 
-        latitude: '', 
-        longitude: '', 
-        google_maps_url: '', 
+        state: '', 
+        district: '', 
         status: 'ACTIVE' 
       };
     }
@@ -431,9 +399,6 @@ export class AdminDashboardComponent implements OnInit {
 
   saveLocation() {
     const payload = { ...this.newLocation };
-    if (payload.latitude === '') payload.latitude = null;
-    if (payload.longitude === '') payload.longitude = null;
-    if (payload.google_maps_url === '') payload.google_maps_url = null;
 
     if (this.editingLocationId) {
       this.apiService.updateLocation(this.editingLocationId, payload).subscribe({
@@ -465,12 +430,24 @@ export class AdminDashboardComponent implements OnInit {
       });
     }
   }
+  
+  viewingLocation: any = null;
+
+  viewLocation(location: any) {
+    this.viewingLocation = location;
+  }
+
+  closeViewLocationModal() {
+    this.viewingLocation = null;
+  }
+
   // --- End Locations Methods ---
 
   setActiveTab(tab: string) {
     this.activeTab = tab;
     if (tab === 'management') {
       this.resetForm();
+      this.resetFilters();
     }
   }
 
@@ -479,20 +456,47 @@ export class AdminDashboardComponent implements OnInit {
     this.newHoarding = {
       location_id: h.location_id || 1,
       name: h.name,
-      description: h.description,
+      description: h.description || '',
       availability_status: h.availability_status || 'AVAILABLE',
       occupied_till: h.occupied_till ? new Date(h.occupied_till).toISOString().split('T')[0] : null,
-      amount: h.amount,
-      latitude: h.latitude,
-      longitude: h.longitude,
-      google_maps_url: h.google_maps_url
+      latitude: h.latitude || '',
+      longitude: h.longitude || '',
+      google_maps_url: h.google_maps_url || '',
+      state: h.state || '',
+      district: h.district || ''
     };
-    this.selectedFile = null;
+    this.selectedFiles = [];
+    this.filePreviews = [];
+    // Load existing images for this hoarding
+    this.apiService.getHoardingImages(h.id).subscribe({
+      next: (res: any) => { if (res.success) this.existingImages = res.data; },
+      error: () => { this.existingImages = []; }
+    });
     this.activeTab = 'add-hoarding';
   }
 
   viewHoarding(h: any) {
     this.viewingHoarding = h;
+    this.currentImageIndex = 0;
+    if (h.all_images) {
+      this.viewingHoarding.images_array = h.all_images.split(',');
+    } else if (h.primary_image) {
+      this.viewingHoarding.images_array = [h.primary_image];
+    } else {
+      this.viewingHoarding.images_array = [];
+    }
+  }
+
+  nextImage() {
+    if (this.viewingHoarding?.images_array?.length) {
+      this.currentImageIndex = (this.currentImageIndex + 1) % this.viewingHoarding.images_array.length;
+    }
+  }
+
+  prevImage() {
+    if (this.viewingHoarding?.images_array?.length) {
+      this.currentImageIndex = (this.currentImageIndex - 1 + this.viewingHoarding.images_array.length) % this.viewingHoarding.images_array.length;
+    }
   }
 
   closeViewModal() {
@@ -501,8 +505,10 @@ export class AdminDashboardComponent implements OnInit {
 
   resetForm() {
     this.editingHoardingId = null;
-    this.selectedFile = null;
-    this.newHoarding = { location_id: this.locations.length > 0 ? this.locations[0].id : null, name: '', description: '', availability_status: 'AVAILABLE', occupied_till: null, amount: null, latitude: '', longitude: '', google_maps_url: '' };
+    this.selectedFiles = [];
+    this.filePreviews = [];
+    this.existingImages = [];
+    this.newHoarding = { location_id: this.locations.length > 0 ? this.locations[0].id : null, name: '', description: '', dimensions: '', availability_status: 'AVAILABLE', occupied_till: null, latitude: '', longitude: '', google_maps_url: '' };
   }
 
   onLocationSelectForHoarding(locationId: number) {
@@ -518,40 +524,69 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   onFileSelect(event: any) {
-    if (event.target.files.length > 0) {
-      this.selectedFile = event.target.files[0];
+    const files: FileList = event.target.files;
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      this.selectedFiles.push(file);
+      const reader = new FileReader();
+      reader.onload = (e: any) => this.filePreviews.push(e.target.result);
+      reader.readAsDataURL(file);
     }
+    // Reset input so same files can be re-selected
+    event.target.value = '';
+  }
+
+  removeSelectedFile(index: number) {
+    this.selectedFiles.splice(index, 1);
+    this.filePreviews.splice(index, 1);
+  }
+
+  deleteHoardingImage(imageId: number) {
+    if (!confirm('Delete this image?')) return;
+    this.apiService.deleteHoardingImage(imageId).subscribe({
+      next: () => {
+        this.existingImages = this.existingImages.filter((img: any) => img.id !== imageId);
+      },
+      error: (e) => console.error('Failed to delete image', e)
+    });
   }
 
   saveHoarding() {
     const formData = new FormData();
     Object.keys(this.newHoarding).forEach(key => {
-      if (this.newHoarding[key] !== null) {
-        formData.append(key, this.newHoarding[key]);
+      const val = this.newHoarding[key];
+      if (key !== 'primary_image' && val !== null && val !== undefined && val !== '') {
+        formData.append(key, val);
       }
     });
-    
-    if (this.selectedFile) {
-      formData.append('image', this.selectedFile);
-    }
+    // Append all selected files under 'images'
+    this.selectedFiles.forEach(file => formData.append('images', file));
 
     if (this.editingHoardingId) {
       this.apiService.updateHoarding(this.editingHoardingId, formData).subscribe({
         next: () => {
+          alert('Hoarding updated successfully!');
           this.fetchHoardings();
           this.resetForm();
           this.activeTab = 'management';
         },
-        error: (e) => console.error('Failed to update via SP', e)
+        error: (e) => {
+          console.error('Failed to update via SP', e);
+          alert('Failed to update hoarding. Check console for details.');
+        }
       });
     } else {
       this.apiService.createHoarding(formData).subscribe({
         next: () => {
+          alert('Hoarding created successfully!');
           this.fetchHoardings();
           this.resetForm();
           this.activeTab = 'management';
         },
-        error: (e) => console.error('Failed to create via SP', e)
+        error: (e) => {
+          console.error('Failed to create via SP', e);
+          alert('Failed to create hoarding. Check console for details.');
+        }
       });
     }
   }
@@ -581,18 +616,42 @@ export class AdminDashboardComponent implements OnInit {
   }
   
   resetFilters() {
-    this.filterStateId = null;
-    this.filterDistrictId = null;
     this.filterLocationId = null;
     this.filterStatus = null;
+    this.filterState = '';
+    this.filterDistrict = '';
   }
 
-  onFilterStateChange() {
-    this.filterDistrictId = null;
-    this.filterLocationId = null;
+  openStatusModal(hoarding: any) {
+    this.statusUpdateData = {
+      id: hoarding.id,
+      availability_status: hoarding.availability_status || 'AVAILABLE',
+      occupied_till: hoarding.occupied_till ? new Date(hoarding.occupied_till).toISOString().split('T')[0] : ''
+    };
+    this.showStatusModal = true;
   }
 
-  onFilterDistrictChange() {
-    this.filterLocationId = null;
+  closeStatusModal() {
+    this.showStatusModal = false;
+  }
+
+  submitStatusUpdate() {
+    this.apiService.updateHoardingAvailability(this.statusUpdateData.id, this.statusUpdateData).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.closeStatusModal();
+          this.fetchHoardings();
+          if (this.statusUpdateData.availability_status === 'AVAILABLE') {
+            this.notifications.push('A booked hoarding is now available!');
+            this.showNotifications = true;
+            setTimeout(() => { this.showNotifications = false; }, 5000);
+          }
+        }
+      },
+      error: (e) => {
+        console.error(e);
+        alert('Failed to update status');
+      }
+    });
   }
 }
