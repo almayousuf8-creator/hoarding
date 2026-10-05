@@ -37,6 +37,8 @@ export class HoardingDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    window.scrollTo(0, 0); // Scroll to top when page loads
+
     const id = this.route.snapshot.paramMap.get('id');
     const stateHoarding = history.state?.hoarding;
 

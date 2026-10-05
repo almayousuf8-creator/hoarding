@@ -101,15 +101,15 @@
                 {{ hoarding.location_name }}<ng-container *ngIf="hoarding.district">, {{ hoarding.district }}</ng-container><ng-container *ngIf="hoarding.state">, {{ hoarding.state }}</ng-container>
               </span>
             </div>
+            <div class="info-row" *ngIf="hoarding.description">
+              <span class="info-label">Description</span>
+              <span class="info-val desc-val">{{ hoarding.description }}</span>
+            </div>
             <div class="info-row" *ngIf="getGoogleMapsLink()">
               <span class="info-label">Map</span>
               <span class="info-val">
                 <a [href]="getGoogleMapsLink()" target="_blank" class="map-link">View Map</a>
               </span>
-            </div>
-            <div class="info-row" *ngIf="hoarding.description">
-              <span class="info-label">Description</span>
-              <span class="info-val desc-val">{{ hoarding.description }}</span>
             </div>
           </div>
 

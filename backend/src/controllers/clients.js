@@ -27,7 +27,7 @@ const getById = async (req, res) => {
 const create = async (req, res) => {
   try {
     const body = req.body;
-    const fields = Object.keys(body).filter(k => ["name","email","phone","address","hoarding_id"].includes(k));
+    const fields = Object.keys(body).filter(k => ["name","email","phone","address","hoarding_id","note"].includes(k));
     const values = fields.map(k => body[k]);
     const placeholders = fields.map(() => '?').join(', ');
     if (fields.length === 0) {
@@ -52,7 +52,7 @@ const update = async (req, res) => {
       return;
     }
     const oldClient = oldClientRows[0];
-    const fields = Object.keys(body).filter(k => ["name","email","phone","address","hoarding_id"].includes(k));
+    const fields = Object.keys(body).filter(k => ["name","email","phone","address","hoarding_id","note"].includes(k));
     const values = fields.map(k => body[k]);
     if (fields.length === 0) {
       res.status(400).json({ success: false, message: 'No valid fields provided' });

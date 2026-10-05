@@ -386,6 +386,10 @@
                   <span *ngIf="viewingClient.hoarding_name" style="background:#e8f6ef; color:#1e8449; padding:4px 8px; border-radius:4px; font-size:13px; font-weight:500; display: inline-block;">{{ viewingClient.hoarding_name }}</span>
                   <span *ngIf="!viewingClient.hoarding_name" style="color:#9ca3af; font-size:13px;">None</span>
                 </div>
+                <div class="detail-item" *ngIf="viewingClient.note">
+                  <span class="label" style="display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600;">Note / Message</span>
+                  <span class="val" style="font-weight: 500; color: #374151; font-size: 14px; white-space: pre-wrap;">{{ viewingClient.note }}</span>
+                </div>
                 <div class="detail-item">
                   <span class="label" style="display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px; font-weight: 600;">Status</span>
                   <span class="text-green" [style.color]="viewingClient.status === 'ACTIVE' ? '#10b981' : '#ef4444'" style="font-weight: 600; font-size: 14px;">{{ viewingClient.status | titlecase }}</span>
