@@ -15,11 +15,14 @@
   overflow-x: hidden;
 }
 
-/* Back row sits above the two-column layout */
-.back-row {
-  padding: 10px 24px;
-  border-bottom: 1px solid #f1f5f9;
-  background: #fff;
+
+
+/* Left column wrapper: back button stacked above gallery */
+.gallery-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
 }
 
 .back-btn {
@@ -31,18 +34,22 @@
   cursor: pointer;
   color: #374151;
   font-size: 0.88rem;
-  font-weight: 500;
+  font-weight: 600;
   padding: 0;
   transition: color 0.2s;
 }
 
-.back-btn:hover { color: #111827; }
+.back-btn:hover {
+  color: #111827;
+  transform: translateX(-2px);
+  transition: color 0.2s, transform 0.15s;
+}
 
 /* Two-column layout — equal 50/50 split */
 .page-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  align-items: start;
+  align-items: stretch;
   gap: 0 40px;
   padding: 20px 40px;
 }
@@ -56,18 +63,20 @@
   background: #0f172a;
   border-radius: 16px;
   overflow: hidden;
-  min-height: 420px;
-  height: fit-content;
-  align-self: start;
+  flex: 1;
+  min-height: 0;
 }
 
 .main-image-area {
   flex: 1;
   overflow: hidden;
   min-height: 0;
+  position: relative;
 }
 
 .main-image {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -114,7 +123,7 @@
    RIGHT: Info Panel — scrolls with page
    ============================================ */
 .info-panel {
-  padding: 20px 0 36px 0;
+  padding: 34px 0 36px 0;
   background: #fff;
   display: flex;
   flex-direction: column;
@@ -130,6 +139,18 @@
   line-height: 1.2;
 }
 
+/* -------- Info Box (upper card) -------- */
+.info-box {
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 /* -------- Status Row -------- */
 .status-row {
   display: flex;
@@ -143,7 +164,7 @@
   align-items: center;
   gap: 7px;
   padding: 5px 14px;
-  border-radius: 999px;
+  border-radius: 6px;
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -213,7 +234,7 @@
   font-size: 0.8rem;
   font-weight: 500;
   padding: 5px 13px;
-  border-radius: 999px;
+  border-radius: 6px;
   line-height: 1.4;
 }
 
@@ -250,12 +271,23 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #2563eb;
+  color: #1e293b;
   font-weight: 600;
 }
 
-.desc-val {
+.map-link {
+  font-size: 0.86rem;
   color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.map-link:hover {
+  text-decoration: underline;
+}
+
+.desc-val {
+  color: #334155;
   font-size: 0.86rem;
   font-weight: 500;
 }
@@ -265,13 +297,15 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+  margin-top: 2px;
 }
 
 .feat-card {
   background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 11px;
-  padding: 14px 16px;
+  border-radius: 10px;
+  padding: 12px 14px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -315,26 +349,27 @@
 }
 
 .feat-val.monospace {
-  font-family: 'Courier New', monospace;
-  font-size: 0.83rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 /* ============================================
    Booking Form
    ============================================ */
 .booking-section {
-  background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
+  background: #f9fafb;
+  border: 1.5px solid #e5e7eb;
   border-radius: 14px;
-  padding: 22px;
+  padding: 22px 24px 24px;
+  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.06);
 }
 
 .booking-heading {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 16px 0;
+  font-size: 1.25rem;
+  font-weight: 750;
+  color: #111827;
+  margin: 0 0 14px 0;
+  letter-spacing: -0.01em;
 }
 
 .booking-form {
@@ -356,31 +391,32 @@
 }
 
 .form-group label {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #374151;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: #1e293b;
 }
 
 .form-group input {
-  padding: 10px 12px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  padding: 9px 11px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 7px;
+  font-size: 0.95rem;
   font-family: inherit;
   outline: none;
   background: #ffffff;
-  color: #1e293b;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  color: #111827;
+  transition: border-color 0.18s, box-shadow 0.18s;
 }
 
 .form-group input:focus {
-  border-color: #475569;
-  box-shadow: 0 0 0 3px rgba(71, 85, 105, 0.12);
+  border-color: #9ca3af;
+  box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.15);
 }
 
 .form-group input::placeholder {
-  color: #cbd5e1;
-  font-style: italic;
+  color: #c8a96e;
+  font-style: normal;
+  font-size: 0.85rem;
 }
 
 /* PRE-BOOK button */
@@ -415,8 +451,8 @@
 }
 
 .prebook-btn:disabled {
-  opacity: 0.75;
-  cursor: not-allowed;
+  opacity: 1;
+  cursor: pointer;
   transform: none;
 }
 

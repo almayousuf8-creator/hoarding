@@ -14,7 +14,7 @@ import { FooterComponent } from '../footer/footer.component';
   standalone: true,
   imports: [CommonModule, FormsModule, NavbarComponent, FooterComponent],
   templateUrl: './hoarding-detail.component.html',
-  styleUrl: './hoarding-detail.component.css'
+  styleUrl: './hoarding-detail.component.css'   // updated styles v2
 })
 export class HoardingDetailComponent implements OnInit {
   hoarding: any = null;
