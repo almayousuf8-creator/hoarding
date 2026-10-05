@@ -82,7 +82,7 @@
   background-size: cover;
   background-position: center;
   color: white;
-  padding: 180px 60px 250px 60px;
+  padding: 130px 60px 70px 60px;
   text-align: left;
   font-family: 'Montserrat', 'Poppins', 'Segoe UI', sans-serif;
   overflow: visible;
@@ -212,6 +212,56 @@
   color: rgba(255, 255, 255, 0.3);
   cursor: not-allowed;
   opacity: 0.8;
+}
+
+/* Custom Fast Tooltip */
+.dropdown-box[data-tooltip] {
+  position: relative;
+}
+
+.dropdown-box[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-5px);
+  background: #e8192c;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 6px 15px rgba(232, 25, 44, 0.4);
+  z-index: 1001;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.dropdown-box[data-tooltip]::before {
+  content: '';
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-5px);
+  border-width: 0 8px 8px 8px;
+  border-style: solid;
+  border-color: transparent transparent #e8192c transparent;
+  z-index: 1001;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dropdown-box.disabled[data-tooltip]:hover::after,
+.dropdown-box.disabled[data-tooltip]:hover::before {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
 }
 
 .selected-text {
@@ -404,7 +454,7 @@
 
 .container {
   max-width: 1200px;
-  margin: 60px auto;
+  margin: 30px auto;
   padding: 0 40px;
   font-family: 'Montserrat', 'Segoe UI', sans-serif;
 }

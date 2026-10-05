@@ -7,12 +7,13 @@ import { RouterModule } from '@angular/router';
 import { environment } from '../../../environments/environment';
 
 import { NavbarComponent } from '../navbar/navbar.component';
+import { FooterComponent } from '../footer/footer.component';
 
 
 @Component({
   selector: 'app-hoarding-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, NavbarComponent],
+  imports: [CommonModule, FormsModule, RouterModule, NavbarComponent, FooterComponent],
 
   templateUrl: './hoarding-list.component.html',
   styleUrls: ['./hoarding-list.component.css']

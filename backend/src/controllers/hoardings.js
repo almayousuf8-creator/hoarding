@@ -6,7 +6,7 @@ const getAll = async (req, res) => {
     await pool.query('UPDATE hoardings SET availability_status = "AVAILABLE", occupied_till = NULL WHERE availability_status = "OCCUPIED" AND occupied_till < CURDATE()');
 
     const [rows] = await pool.query(`
-      SELECT h.*, l.name as location_name, l.state as loc_state, l.district as loc_district,
+      SELECT h.*, l.name as location_name,
       l.status as loc_status,
       (SELECT name FROM clients WHERE hoarding_id = h.id AND status = 'ACTIVE' ORDER BY id DESC LIMIT 1) as client_name,
       (SELECT image_path FROM hoarding_images WHERE hoarding_id = h.id ORDER BY sort_order ASC LIMIT 1) as primary_image,

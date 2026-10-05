@@ -48,7 +48,7 @@
           <span>District</span>
         </label>
 
-        <div class="dropdown-box" (click)="toggleDropdown('district', $event)" [class.has-value]="selectedDistrict" [class.disabled]="!selectedState" [title]="!selectedState ? 'Please select a state first' : ''">
+        <div class="dropdown-box" (click)="toggleDropdown('district', $event)" [class.has-value]="selectedDistrict" [class.disabled]="!selectedState" [attr.data-tooltip]="!selectedState ? 'Please select a state first' : null">
           <span class="selected-text" [class.placeholder]="!selectedDistrict">{{ getSelectedDistrictName() }}</span>
           <svg class="dropdown-chevron" [class.rotated]="openDropdown === 'district'" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"></polyline>
@@ -81,7 +81,7 @@
           <span>Location</span>
         </label>
 
-        <div class="dropdown-box" (click)="toggleDropdown('location', $event)" [class.has-value]="selectedLocationId" [class.disabled]="!selectedDistrict" [title]="!selectedDistrict ? 'Please select a district first' : ''">
+        <div class="dropdown-box" (click)="toggleDropdown('location', $event)" [class.has-value]="selectedLocationId" [class.disabled]="!selectedDistrict" [attr.data-tooltip]="!selectedDistrict ? 'Please select a district first' : null">
           <span class="selected-text" [class.placeholder]="!selectedLocationId">{{ getSelectedLocationName() }}</span>
           <svg class="dropdown-chevron" [class.rotated]="openDropdown === 'location'" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"></polyline>
@@ -124,13 +124,21 @@
 
 <div class="container" id="results">
   <div class="results-header">
-    <h2>
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 8px;">
+    <div class="section-badge">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="#e8192c"/>
       </svg>
-      Hoardings <span class="light-text">in {{ getLocationHeading() }}</span>
+      <span>Premium Inventory</span>
+    </div>
+    <h2>
+      <span class="heading-main">Hoardings</span>
+      <span class="heading-location"> in {{ getLocationHeading() }}</span>
     </h2>
-    <p class="subtitle">Showing {{ hoardings.length }} hoardings</p>
+    <div class="results-meta">
+      <span class="meta-count"><strong>{{ hoardings.length }}</strong> hoardings found</span>
+      <span class="meta-divider"></span>
+      <span class="meta-tag">Kerala &amp; Beyond</span>
+    </div>
   </div>
 
   <div *ngIf="!isLoading && hoardings.length === 0" class="no-results">
@@ -187,3 +195,4 @@
   </div>
 </div>
 
+<app-footer></app-footer>

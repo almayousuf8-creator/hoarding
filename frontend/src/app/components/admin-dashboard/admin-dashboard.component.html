@@ -192,83 +192,70 @@
 
       <!-- View Hoarding Modal -->
       <div class="modal-overlay" *ngIf="viewingHoarding">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3>Hoarding Details</h3>
-            <button class="close-btn" (click)="closeViewModal()"><i class='bx bx-x'></i></button>
-          </div>
-          <div class="modal-body">
-            <div class="view-image-container" style="position: relative;">
-              <ng-container *ngIf="viewingHoarding.images_array?.length > 0; else noImage">
-                <img [src]="backendUrl + viewingHoarding.images_array[currentImageIndex]" class="view-main-image" style="width: 100%; display: block;" />
-                
-                <button *ngIf="viewingHoarding.images_array.length > 1" (click)="prevImage()" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                  <i class='bx bx-chevron-left' style="font-size: 24px;"></i>
-                </button>
-                <button *ngIf="viewingHoarding.images_array.length > 1" (click)="nextImage()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                  <i class='bx bx-chevron-right' style="font-size: 24px;"></i>
-                </button>
-                <div *ngIf="viewingHoarding.images_array.length > 1" style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.5); color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">
-                  {{ currentImageIndex + 1 }} / {{ viewingHoarding.images_array.length }}
-                </div>
-              </ng-container>
-              <ng-template #noImage>
-                <div class="view-no-image">No Image Available</div>
-              </ng-template>
-            </div>
-            <div class="view-details">
-              <h2 style="margin-bottom: 5px;">{{ viewingHoarding.name }}</h2>
-              <p style="color: #6b7280; margin-bottom: 20px;">
-                <i class='bx bx-map' style="vertical-align: middle;"></i> 
-                {{ viewingHoarding.location_name || 'N/A' }} 
-                <span *ngIf="viewingHoarding.google_maps_url">
-                  <a [href]="viewingHoarding.google_maps_url" target="_blank" style="margin-left: 10px; color: #3b82f6; text-decoration: none; font-size: 13px;">View on Maps</a>
-                </span>
-              </p>
+        <div class="modal-content hoarding-details-modal">
+          <!-- Image Carousel Header -->
+          <div class="modal-image-header">
+            <ng-container *ngIf="viewingHoarding.images_array?.length > 0; else noImage">
+              <img [src]="backendUrl + viewingHoarding.images_array[currentImageIndex]" class="modal-main-image" />
               
-              <div class="detail-grid">
-                <div class="detail-item">
-                  <span class="label">Status</span>
-                  <span class="badge" [class.available]="viewingHoarding.availability_status === 'AVAILABLE'" [class.occupied]="viewingHoarding.availability_status === 'OCCUPIED'">
-                    {{ (viewingHoarding.availability_status || 'AVAILABLE') | titlecase }}
-                  </span>
-                </div>
-                <div class="detail-item" *ngIf="viewingHoarding.availability_status === 'OCCUPIED'">
-                  <span class="label">Occupied Till</span>
-                  <span class="val">{{ (viewingHoarding.occupied_till | date:'dd MMM yyyy') || '-' }}</span>
-                </div>
+              <button class="img-nav-btn prev" *ngIf="viewingHoarding.images_array.length > 1" (click)="prevImage()">
+                <i class='bx bx-chevron-left'></i>
+              </button>
+              <button class="img-nav-btn next" *ngIf="viewingHoarding.images_array.length > 1" (click)="nextImage()">
+                <i class='bx bx-chevron-right'></i>
+              </button>
+              <div class="img-counter" *ngIf="viewingHoarding.images_array.length > 1">
+                {{ currentImageIndex + 1 }} / {{ viewingHoarding.images_array.length }}
               </div>
-              <div class="detail-grid" style="margin-top: 15px;">
-                <div class="detail-item">
-                  <span class="label">Dimensions</span>
-                  <span class="val" style="font-weight: 500; color: #374151;">{{ viewingHoarding.dimensions || 'N/A' }}</span>
-                </div>
-                <div class="detail-item">
-                  <span class="label">District & State</span>
-                  <span class="val" style="font-weight: 500; color: #374151;">{{ (viewingHoarding.district || viewingHoarding.loc_district || 'N/A') | titlecase }}, {{ (viewingHoarding.state || viewingHoarding.loc_state || 'N/A') | titlecase }}</span>
-                </div>
+            </ng-container>
+            <ng-template #noImage>
+              <div class="modal-no-image">
+                <i class='bx bx-image-alt'></i>
+                <p>No Image Available</p>
               </div>
-              <div class="detail-grid" style="margin-top: 15px;">
-                <div class="detail-item">
-                  <span class="label">Coordinates (Lat, Lon)</span>
-                  <span class="val" style="font-weight: 500; color: #374151;">
-                    {{ viewingHoarding.latitude || 'N/A' }}{{ viewingHoarding.longitude ? ', ' + viewingHoarding.longitude : '' }}
-                  </span>
-                </div>
-                
-              </div>
-              <div class="detail-grid" style="margin-top: 15px;" *ngIf="viewingHoarding.google_maps_url">
-                <div class="detail-item" style="grid-column: span 2;">
-                  <span class="label">Google Maps Link</span>
-                  <a [href]="viewingHoarding.google_maps_url" target="_blank" style="color: #3b82f6; text-decoration: none; word-break: break-all; font-weight: 500; font-size: 14px;">
-                    {{ viewingHoarding.google_maps_url }}
-                  </a>
-                </div>
-              </div>
+            </ng-template>
+            <button class="modal-close-overlay" (click)="closeViewModal()"><i class='bx bx-x'></i></button>
+          </div>
+          
+          <!-- Modal Body -->
+          <div class="modal-body enhanced-body">
+            <div class="hoarding-title-section">
+              <h2>{{ viewingHoarding.name }}</h2>
+              <span class="badge" [class.available]="viewingHoarding.availability_status === 'AVAILABLE'" [class.occupied]="viewingHoarding.availability_status === 'OCCUPIED'">
+                {{ (viewingHoarding.availability_status || 'AVAILABLE') | titlecase }}
+              </span>
+            </div>
+            
+            <p class="location-subtitle">
+              <i class='bx bxs-map'></i> 
+              {{ viewingHoarding.location_name || 'Location N/A' }} 
+              <span *ngIf="viewingHoarding.district || viewingHoarding.state || viewingHoarding.loc_district || viewingHoarding.loc_state">
+                 &bull; {{ (viewingHoarding.district || viewingHoarding.loc_district || 'N/A') | titlecase }}, {{ (viewingHoarding.state || viewingHoarding.loc_state || 'N/A') | titlecase }}
+              </span>
+            </p>
 
-              <div class="detail-desc" style="margin-top: 20px;" *ngIf="viewingHoarding.description">
-                <h4 style="font-size: 14px; margin-bottom: 5px; color: #4b5563;">Description</h4>
-                <p style="font-size: 14px; color: #6b7280; line-height: 1.5;">{{ viewingHoarding.description }}</p>
+            <div class="info-list">
+              <div class="info-item">
+                <span class="info-label">Occupied Till</span>
+                <span class="info-value">{{ viewingHoarding.availability_status === 'OCCUPIED' ? ((viewingHoarding.occupied_till | date:'dd MMM yyyy') || 'Not Specified') : 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Dimensions</span>
+                <span class="info-value">{{ viewingHoarding.dimensions || 'N/A' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Coordinates</span>
+                <span class="info-value">{{ viewingHoarding.latitude || 'N/A' }}{{ viewingHoarding.longitude ? ', ' + viewingHoarding.longitude : '' }}</span>
+              </div>
+              <div class="info-item" *ngIf="viewingHoarding.google_maps_url">
+                <span class="info-label">Google Maps</span>
+                <span class="info-value">
+                  <a [href]="viewingHoarding.google_maps_url" target="_blank" class="map-link-text">View on Map <i class='bx bx-link-external'></i></a>
+                </span>
+              </div>
+              <div class="info-item" *ngIf="viewingHoarding.description" style="flex-direction: column; align-items: flex-start; gap: 6px; border-bottom: none; padding-bottom: 0;">
+                <span class="info-label" style="width: auto;">Description</span>
+                <span class="info-value" style="width: 100%; color: #475569; line-height: 1.5;">{{ viewingHoarding.description }}</span>
               </div>
             </div>
           </div>

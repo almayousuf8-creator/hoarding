@@ -7,11 +7,12 @@ import { FormsModule } from '@angular/forms';
 import { environment } from '../../../environments/environment';
 
 import { NavbarComponent } from '../navbar/navbar.component';
+import { FooterComponent } from '../footer/footer.component';
 
 @Component({
   selector: 'app-hoarding-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, FooterComponent],
   templateUrl: './hoarding-detail.component.html',
   styleUrl: './hoarding-detail.component.css'
 })

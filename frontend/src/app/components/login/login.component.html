@@ -1,49 +1,71 @@
-<div class="login-container">
-  <div class="login-card">
-    <div class="login-header">
-      <h2>Hoarding Leasing</h2>
-      <p>Sign in to your account</p>
+<div class="login-wrapper">
+  <div class="login-left">
+    <div class="brand">
+      <img src="https://maxplusmedia.com/wp-content/uploads/2026/01/white-logo.png" alt="Max Plus Media" class="logo">
     </div>
+    <div class="left-content">
+      <h1>Welcome Back,<br>Admin!</h1>
+      <p>Access your dashboard to manage hoardings, track leads, and oversee your leasing system efficiently.</p>
+    </div>
+    <div class="left-footer">
+      <p>© 2026 Max Plus Media. All rights reserved.</p>
+    </div>
+  </div>
+  
+  <div class="login-right">
+    <div class="login-card">
+      <div class="login-header">
+        <h2>Admin Sign In</h2>
+        <p>Please enter your credentials to continue</p>
+      </div>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input 
-          type="email" 
-          id="email" 
-          formControlName="email" 
-          placeholder="Enter your email"
-          [class.invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
-        >
-        <div class="error-text" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-          Valid email is required
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <div class="input-icon-wrapper">
+            <i class='bx bx-envelope'></i>
+            <input 
+              type="email" 
+              id="email" 
+              formControlName="email" 
+              placeholder="admin@maxplusmedia.com"
+              [class.invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+            >
+          </div>
+          <div class="error-text" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+            Valid email is required
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input 
-          type="password" 
-          id="password" 
-          formControlName="password" 
-          placeholder="Enter your password"
-          [class.invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-        >
-        <div class="error-text" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-          Password is required
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-icon-wrapper">
+            <i class='bx bx-lock-alt'></i>
+            <input 
+              type="password" 
+              id="password" 
+              formControlName="password" 
+              placeholder="Enter your password"
+              [class.invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+            >
+          </div>
+          <div class="error-text" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+            Password is required
+          </div>
         </div>
-      </div>
 
-      <div class="error-banner" *ngIf="errorMessage">
-        {{ errorMessage }}
-      </div>
+        <div class="error-banner" *ngIf="errorMessage">
+          <i class='bx bx-error-circle'></i> {{ errorMessage }}
+        </div>
 
-      <button type="submit" [disabled]="loginForm.invalid || isLoading" class="btn-login">
-        {{ isLoading ? 'Signing in...' : 'Login' }}
-      </button>
-    </form>
-    <div class="back-link">
-      <a routerLink="/public">← Back to Public Search</a>
+        <button type="submit" [disabled]="loginForm.invalid || isLoading" class="btn-login">
+          {{ isLoading ? 'Signing in...' : 'Sign In to Dashboard' }}
+        </button>
+      </form>
+      
+      <div class="back-link">
+        <a routerLink="/public"><i class='bx bx-arrow-back'></i> Back to Public Search</a>
+      </div>
     </div>
   </div>
 </div>
