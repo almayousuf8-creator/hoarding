@@ -45,6 +45,7 @@ const clientRoutes = require('./src/routes/clients');
 const locationRoutes = require('./src/routes/locations');
 const hoardingRoutes = require('./src/routes/hoardings');
 const imageRoutes = require('./src/routes/images');
+const leadRoutes = require('./src/routes/leads');
 
 app.use('/api/auth', authRoutes);
 
@@ -52,6 +53,7 @@ app.use('/api/clients', clientRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/hoardings', hoardingRoutes);
 app.use('/api/images', imageRoutes);
+app.use('/api/leads', leadRoutes);
 
 const PORT = process.env.PORT || 5000;
 
