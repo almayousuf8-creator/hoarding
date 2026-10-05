@@ -69,6 +69,20 @@ export class AdminDashboardComponent implements OnInit {
     district: ''
   };
 
+  
+  toastVisible = false;
+  toastMessage = '';
+  toastType: 'success' | 'error' = 'success';
+
+  showToast(message: string, type: 'success' | 'error' = 'success') {
+    this.toastMessage = message;
+    this.toastType = type;
+    this.toastVisible = true;
+    setTimeout(() => {
+      this.toastVisible = false;
+    }, 3500);
+  }
+
   constructor(private authService: AuthService, private apiService: ApiService) {}
 
   ngOnInit() {
@@ -308,7 +322,7 @@ export class AdminDashboardComponent implements OnInit {
         },
         error: (e) => {
           console.error(e);
-          alert(e.error?.message || 'Failed to delete lead.');
+          this.showToast(e.error?.message || 'Failed to delete lead.', 'error');
         }
       });
     }
@@ -333,7 +347,7 @@ export class AdminDashboardComponent implements OnInit {
   submitConfirmBooking() {
     if (this.confirmBookingData.action === 'confirm') {
       if (!this.confirmBookingData.occupied_till) {
-        alert("Please select an 'Occupied Till' date.");
+        this.showToast("Please select an 'Occupied Till' date.", 'error');
         return;
       }
       this.apiService.confirmBooking(this.confirmBookingData.clientId, { occupied_till: this.confirmBookingData.occupied_till }).subscribe({
@@ -345,7 +359,7 @@ export class AdminDashboardComponent implements OnInit {
         },
         error: (e) => {
           console.error(e);
-          alert(e.error?.message || 'Failed to confirm booking.');
+          this.showToast(e.error?.message || 'Failed to confirm booking.', 'error');
         }
       });
     } else {
@@ -357,7 +371,7 @@ export class AdminDashboardComponent implements OnInit {
         },
         error: (e) => {
           console.error(e);
-          alert(e.error?.message || 'Failed to update status.');
+          this.showToast(e.error?.message || 'Failed to update status.', 'error');
         }
       });
     }
@@ -405,7 +419,7 @@ export class AdminDashboardComponent implements OnInit {
         next: () => { this.fetchLocations(); this.closeLocationModal(); },
         error: (e) => {
           console.error(e);
-          alert(e.error?.message || 'Failed to update location. Check console for details.');
+          this.showToast(e.error?.message || 'Failed to update location. Check console for details.', 'error');
         }
       });
     } else {
@@ -413,7 +427,7 @@ export class AdminDashboardComponent implements OnInit {
         next: () => { this.fetchLocations(); this.closeLocationModal(); },
         error: (e) => {
           console.error(e);
-          alert(e.error?.message || 'Failed to create location. Check console for details.');
+          this.showToast(e.error?.message || 'Failed to create location. Check console for details.', 'error');
         }
       });
     }
@@ -425,7 +439,7 @@ export class AdminDashboardComponent implements OnInit {
         next: () => this.fetchLocations(),
         error: (e) => {
           console.error(e);
-          alert(e.error?.message || 'Failed to delete location.');
+          this.showToast(e.error?.message || 'Failed to delete location.', 'error');
         }
       });
     }
@@ -565,27 +579,27 @@ export class AdminDashboardComponent implements OnInit {
     if (this.editingHoardingId) {
       this.apiService.updateHoarding(this.editingHoardingId, formData).subscribe({
         next: () => {
-          alert('Hoarding updated successfully!');
+          this.showToast('Hoarding updated successfully!', 'success');
           this.fetchHoardings();
           this.resetForm();
           this.activeTab = 'management';
         },
         error: (e) => {
           console.error('Failed to update via SP', e);
-          alert('Failed to update hoarding. Check console for details.');
+          this.showToast('Failed to update hoarding. Check console for details.', 'error');
         }
       });
     } else {
       this.apiService.createHoarding(formData).subscribe({
         next: () => {
-          alert('Hoarding created successfully!');
+          this.showToast('Hoarding created successfully!', 'success');
           this.fetchHoardings();
           this.resetForm();
           this.activeTab = 'management';
         },
         error: (e) => {
           console.error('Failed to create via SP', e);
-          alert('Failed to create hoarding. Check console for details.');
+          this.showToast('Failed to create hoarding. Check console for details.', 'error');
         }
       });
     }
@@ -650,7 +664,7 @@ export class AdminDashboardComponent implements OnInit {
       },
       error: (e) => {
         console.error(e);
-        alert('Failed to update status');
+        this.showToast('Failed to update status', 'error');
       }
     });
   }
