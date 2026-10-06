@@ -65,6 +65,7 @@
   overflow: hidden;
   flex: 1;
   min-height: 0;
+  position: relative;
 }
 
 .main-image-area {
@@ -83,13 +84,19 @@
   display: block;
 }
 
-/* Dark navy thumbnail strip */
+/* Floating dark navy thumbnail strip */
 .thumb-strip {
-  background: #1e293b;
-  padding: 10px 14px;
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background: rgba(15, 23, 42, 0.85); /* Dark navy with some transparency */
+  backdrop-filter: blur(6px);
+  padding: 8px 10px;
   display: flex;
   gap: 10px;
-  flex-shrink: 0;
+  border-radius: 10px;
+  overflow-x: auto;
+  max-width: calc(100% - 32px);
 }
 
 .thumb-item {

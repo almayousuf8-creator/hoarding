@@ -10,7 +10,7 @@ BEGIN
         SELECT ROW_COUNT() as affectedRows;
       END$$
 DELIMITER ;
-
+sp_DeleteHoarding
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpdateHoarding`(IN p_id INT,IN p_location_id INT,IN p_name VARCHAR(100),IN p_description TEXT,IN p_dimensions VARCHAR(50),IN p_availability_status ENUM('AVAILABLE','OCCUPIED','MAINTENANCE'),IN p_occupied_till DATE,IN p_latitude DECIMAL(10,8),IN p_longitude DECIMAL(11,8),IN p_google_maps_url TEXT,IN p_status ENUM('ACTIVE','INACTIVE'), IN p_state VARCHAR(255), IN p_district VARCHAR(255))
 BEGIN UPDATE hoardings SET location_id = COALESCE(p_location_id, location_id),name = COALESCE(p_name, name),description = p_description,dimensions = p_dimensions,availability_status = COALESCE(p_availability_status, availability_status),occupied_till = p_occupied_till,latitude = p_latitude,longitude = p_longitude,google_maps_url = p_google_maps_url,status = COALESCE(p_status, status), state = p_state, district = p_district WHERE id = p_id; END$$

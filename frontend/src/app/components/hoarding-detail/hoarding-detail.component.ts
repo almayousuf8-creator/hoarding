@@ -141,6 +141,18 @@ export class HoardingDetailComponent implements OnInit {
       return;
     }
 
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(this.bookingForm.phone)) {
+      alert('Please enter a valid 10-digit phone number.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.bookingForm.email)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+
     const payload = {
       name: this.bookingForm.name,
       email: this.bookingForm.email,
@@ -180,5 +192,12 @@ export class HoardingDetailComponent implements OnInit {
     setTimeout(() => {
       this.isHighlighting = false;
     }, 1500);
+  }
+
+  onPhoneInput(event: any): void {
+    let val = event.target.value;
+    val = val.replace(/[^0-9]/g, '');
+    this.bookingForm.phone = val;
+    event.target.value = val;
   }
 }

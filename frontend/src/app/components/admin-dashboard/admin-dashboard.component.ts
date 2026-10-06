@@ -308,15 +308,18 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  deleteClient(id: number) {
+  deleteClient(id: number, clientStatus?: string) {
     if (confirm('Are you sure you want to delete this lead?')) {
       this.apiService.deleteClient(id).subscribe({
         next: (res: any) => {
           this.fetchClients();
-          if (res && res.hoardingFreed) {
+          const isUnderReview = clientStatus && clientStatus.toUpperCase() === 'UNDER REVIEW';
+          if (res && res.hoardingFreed && !isUnderReview) {
             this.notifications.unshift('A booked hoarding is now available!');
             this.showNotifications = true;
             setTimeout(() => { this.showNotifications = false; }, 5000);
+            this.fetchHoardings();
+          } else if (res && res.hoardingFreed && isUnderReview) {
             this.fetchHoardings();
           }
         },

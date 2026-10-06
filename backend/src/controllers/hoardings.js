@@ -9,10 +9,11 @@ const getAll = async (req, res) => {
       SELECT h.*, l.name as location_name,
       l.status as loc_status,
       (SELECT name FROM clients WHERE hoarding_id = h.id AND status = 'ACTIVE' ORDER BY id DESC LIMIT 1) as client_name,
-      (SELECT image_path FROM hoarding_images WHERE hoarding_id = h.id ORDER BY sort_order ASC LIMIT 1) as primary_image,
-      (SELECT GROUP_CONCAT(image_path ORDER BY sort_order ASC SEPARATOR ',') FROM hoarding_images WHERE hoarding_id = h.id) as all_images
+      (SELECT image_path FROM hoarding_images WHERE hoarding_id = h.id AND status = 'ACTIVE' ORDER BY sort_order ASC LIMIT 1) as primary_image,
+      (SELECT GROUP_CONCAT(image_path ORDER BY sort_order ASC SEPARATOR ',') FROM hoarding_images WHERE hoarding_id = h.id AND status = 'ACTIVE') as all_images
       FROM hoardings h 
       LEFT JOIN locations l ON h.location_id = l.id
+      WHERE h.is_deleted = 0
     `);
     res.json({ success: true, data: rows });
   } catch (error) {
@@ -29,11 +30,11 @@ const getById = async (req, res) => {
     const [rows] = await pool.query(`
       SELECT h.*, l.name as location_name, 
       (SELECT name FROM clients WHERE hoarding_id = h.id AND status = 'ACTIVE' ORDER BY id DESC LIMIT 1) as client_name,
-      (SELECT image_path FROM hoarding_images WHERE hoarding_id = h.id ORDER BY sort_order ASC LIMIT 1) as primary_image,
-      (SELECT GROUP_CONCAT(image_path ORDER BY sort_order ASC SEPARATOR ',') FROM hoarding_images WHERE hoarding_id = h.id) as all_images
+      (SELECT image_path FROM hoarding_images WHERE hoarding_id = h.id AND status = 'ACTIVE' ORDER BY sort_order ASC LIMIT 1) as primary_image,
+      (SELECT GROUP_CONCAT(image_path ORDER BY sort_order ASC SEPARATOR ',') FROM hoarding_images WHERE hoarding_id = h.id AND status = 'ACTIVE') as all_images
       FROM hoardings h 
       LEFT JOIN locations l ON h.location_id = l.id 
-      WHERE h.id = ?
+      WHERE h.id = ? AND h.is_deleted = 0
     `, [req.params.id]);
     if (rows.length === 0) {
       res.status(404).json({ success: false, message: 'Hoarding not found' });
