@@ -7,8 +7,8 @@ const router = Router();
 
 router.get('/', getAll);
 router.get('/:id', getById);
-router.post('/', authenticate, upload.array('images', 10), create);
-router.put('/:id', authenticate, upload.array('images', 10), update);
+router.post('/', authenticate, upload.any(), create);
+router.put('/:id', authenticate, upload.any(), update);
 router.delete('/:id', authenticate, remove);
 router.patch('/:id/status', authenticate, updateStatus);
 router.patch('/:id/availability', authenticate, updateAvailability);

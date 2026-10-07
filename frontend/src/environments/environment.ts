@@ -3,7 +3,7 @@ export const environment = {
 
   apiUrl: 'http://localhost:5000',
 
- //apiUrl: 'https://hoardingapi.trackbox.in',
+  //apiUrl: 'https://hoardingapi.trackbox.in',
 
 };
 

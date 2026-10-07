@@ -5,7 +5,14 @@ const getAll = async (req, res) => {
     // Auto-expire hoardings whose occupied_till date has passed
     await pool.query('UPDATE hoardings SET availability_status = "AVAILABLE", occupied_till = NULL WHERE availability_status = "OCCUPIED" AND occupied_till < CURDATE()');
 
-    const [rows] = await pool.query(`
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 100000;
+    const offset = (page - 1) * limit;
+
+    const [countRows] = await pool.query('SELECT COUNT(*) as total FROM hoardings WHERE is_deleted = 0');
+    const total = countRows[0].total;
+
+    let query = `
       SELECT h.*, l.name as location_name,
       l.status as loc_status,
       (SELECT name FROM clients WHERE hoarding_id = h.id AND status = 'ACTIVE' ORDER BY id DESC LIMIT 1) as client_name,
@@ -14,8 +21,17 @@ const getAll = async (req, res) => {
       FROM hoardings h 
       LEFT JOIN locations l ON h.location_id = l.id
       WHERE h.is_deleted = 0
-    `);
-    res.json({ success: true, data: rows });
+      ORDER BY h.id DESC
+    `;
+    const params = [];
+
+    if (req.query.page || req.query.limit) {
+      query += ' LIMIT ? OFFSET ?';
+      params.push(limit, offset);
+    }
+
+    const [rows] = await pool.query(query, params);
+    res.json({ success: true, data: rows, total });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Internal server error' });

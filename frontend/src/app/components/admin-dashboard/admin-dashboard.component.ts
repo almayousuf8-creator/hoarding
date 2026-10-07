@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { environment } from '../../../environments/environment';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -26,8 +27,61 @@ export class AdminDashboardComponent implements OnInit {
   filePreviews: string[] = [];
   existingImages: any[] = [];
 
+  hoardingsCurrentPage: number = 1;
+  hoardingsItemsPerPage: number = 5;
+
+  get paginatedFilteredHoardings() {
+    const startIndex = (this.hoardingsCurrentPage - 1) * this.hoardingsItemsPerPage;
+    return this.filteredHoardings.slice(startIndex, startIndex + this.hoardingsItemsPerPage);
+  }
+
+  get totalHoardingPages() { return Math.ceil(this.filteredHoardings.length / this.hoardingsItemsPerPage) || 1; }
+  get hoardingsPagesArray() {
+    const pages = [];
+    for (let i = 1; i <= this.totalHoardingPages; i++) pages.push(i);
+    return pages;
+  }
+  goToHoardingsPage(page: number) { this.hoardingsCurrentPage = page; }
+  nextHoardingsPage() { if (this.hoardingsCurrentPage < this.totalHoardingPages) this.hoardingsCurrentPage++; }
+  prevHoardingsPage() { if (this.hoardingsCurrentPage > 1) this.hoardingsCurrentPage--; }
+
 
   clients: any[] = [];
+  clientsCurrentPage: number = 1;
+  clientsItemsPerPage: number = 5;
+  totalClientsCount: number = 0;
+
+  get totalClientPages() {
+    return Math.ceil(this.totalClientsCount / this.clientsItemsPerPage) || 1;
+  }
+
+  get clientsPagesArray() {
+    const pages = [];
+    for (let i = 1; i <= this.totalClientPages; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  goToClientsPage(page: number) {
+    this.clientsCurrentPage = page;
+    this.fetchClients();
+  }
+
+  nextClientsPage() {
+    if (this.clientsCurrentPage < this.totalClientPages) {
+      this.clientsCurrentPage++;
+      this.fetchClients();
+    }
+  }
+
+  prevClientsPage() {
+    if (this.clientsCurrentPage > 1) {
+      this.clientsCurrentPage--;
+      this.fetchClients();
+    }
+  }
+
   isClientModalOpen: boolean = false;
   editingClientId: number | null = null;
   newClient: any = { name: '', email: '', phone: '', address: '', hoarding_id: null };
@@ -37,6 +91,37 @@ export class AdminDashboardComponent implements OnInit {
   confirmBookingData: any = { clientId: null, hoardingName: '', action: 'confirm', occupied_till: '' };
 
   locations: any[] = [];
+  locationsCurrentPage: number = 1;
+  locationsItemsPerPage: number = 5;
+
+  locationFilterSearch: string = '';
+  locationFilterState: string = '';
+  locationFilterDistrict: string = '';
+
+  get locationsFilteredForTable() {
+    return this.locations.filter(l => {
+      const matchSearch = !this.locationFilterSearch || (l.name && l.name.toLowerCase().includes(this.locationFilterSearch.toLowerCase()));
+      const matchState = !this.locationFilterState || (l.state && l.state.toLowerCase() === this.locationFilterState.toLowerCase());
+      const matchDistrict = !this.locationFilterDistrict || (l.district && l.district.toLowerCase() === this.locationFilterDistrict.toLowerCase());
+      return matchSearch && matchState && matchDistrict;
+    });
+  }
+
+  get paginatedLocations() {
+    const startIndex = (this.locationsCurrentPage - 1) * this.locationsItemsPerPage;
+    return this.locationsFilteredForTable.slice(startIndex, startIndex + this.locationsItemsPerPage);
+  }
+
+  get totalLocationPages() { return Math.ceil(this.locationsFilteredForTable.length / this.locationsItemsPerPage) || 1; }
+  get locationsPagesArray() {
+    const pages = [];
+    for (let i = 1; i <= this.totalLocationPages; i++) pages.push(i);
+    return pages;
+  }
+  goToLocationsPage(page: number) { this.locationsCurrentPage = page; }
+  nextLocationsPage() { if (this.locationsCurrentPage < this.totalLocationPages) this.locationsCurrentPage++; }
+  prevLocationsPage() { if (this.locationsCurrentPage > 1) this.locationsCurrentPage--; }
+
   isLocationModalOpen: boolean = false;
   editingLocationId: number | null = null;
   newLocation: any = { name: '', state: '', district: '', status: 'ACTIVE' };
@@ -83,7 +168,11 @@ export class AdminDashboardComponent implements OnInit {
     }, 3500);
   }
 
-  constructor(private authService: AuthService, private apiService: ApiService) {}
+  constructor(
+    private authService: AuthService,
+    private apiService: ApiService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.fetchHoardings();
@@ -104,6 +193,7 @@ export class AdminDashboardComponent implements OnInit {
           } else {
             this.notifications = [];
           }
+          this.cdr.detectChanges();
         }
       },
       error: (e) => console.error(e)
@@ -152,7 +242,12 @@ export class AdminDashboardComponent implements OnInit {
 
   fetchHoardings() {
     this.apiService.getHoardings().subscribe({
-      next: (res) => { if (res.success) this.hoardings = res.data; },
+      next: (res) => { 
+        if (res.success) {
+          this.hoardings = res.data; 
+          this.cdr.detectChanges();
+        }
+      },
       error: (e) => console.error(e)
     });
   }
@@ -213,8 +308,38 @@ export class AdminDashboardComponent implements OnInit {
     return Array.from(distMap.values()).sort();
   }
 
+  resetFilters() {
+    this.filterState = '';
+    this.filterDistrict = '';
+    this.filterLocationId = null;
+    this.filterStatus = null;
+  }
+
+  resetLocationFilters() {
+    this.locationFilterSearch = '';
+    this.locationFilterState = '';
+    this.locationFilterDistrict = '';
+  }
+
+  get uniqueLocationDistricts(): string[] {
+    const distMap = new Map<string, string>();
+    const addDist = (s: string, d: string) => {
+      if (!d || d.trim() === '') return;
+      if (!this.locationFilterState || (s && s.trim().toLowerCase() === this.locationFilterState.toLowerCase())) {
+        const lower = d.trim().toLowerCase();
+        if (!distMap.has(lower)) distMap.set(lower, d.trim().charAt(0).toUpperCase() + d.trim().slice(1).toLowerCase());
+      }
+    };
+    this.activeLocations.forEach(l => addDist(l.state, l.district));
+    return Array.from(distMap.values()).sort();
+  }
+
   onStateFilterChange() {
     this.filterDistrict = '';
+  }
+
+  onLocationStateFilterChange() {
+    this.locationFilterDistrict = '';
   }
 
   get filteredHoardings() {
@@ -249,8 +374,14 @@ export class AdminDashboardComponent implements OnInit {
 
   // --- Clients Methods ---
   fetchClients() {
-    this.apiService.getClients().subscribe({
-      next: (res) => { if (res.success) this.clients = res.data; },
+    this.apiService.getClients(this.clientsCurrentPage, this.clientsItemsPerPage).subscribe({
+      next: (res) => { 
+        if (res.success) {
+          this.clients = res.data;
+          this.totalClientsCount = res.total !== undefined ? res.total : res.data.length;
+          this.cdr.detectChanges();
+        }
+      },
       error: (e) => console.error(e)
     });
   }
@@ -337,7 +468,9 @@ export class AdminDashboardComponent implements OnInit {
       hoardingName: client.hoarding_name,
       action: 'confirm',
       occupied_till: '',
-      isOccupied: client.hoarding_availability_status === 'OCCUPIED',
+      isOccupied: client.hoarding_availability_status === 'OCCUPIED' && client.hoarding_is_deleted !== 1,
+      isDeleted: client.hoarding_is_deleted === 1,
+      isUnavailable: (client.hoarding_availability_status === 'OCCUPIED' && client.hoarding_is_deleted !== 1) || client.hoarding_is_deleted === 1,
       hoardingOccupiedTill: client.hoarding_occupied_till
     };
     this.isConfirmBookingModalOpen = true;
@@ -384,7 +517,12 @@ export class AdminDashboardComponent implements OnInit {
   // --- Locations Methods ---
   fetchLocations() {
     this.apiService.getLocations().subscribe({
-      next: (res) => { if (res.success) this.locations = res.data; },
+      next: (res) => { 
+        if (res.success) {
+          this.locations = res.data;
+          this.cdr.detectChanges();
+        }
+      },
       error: (e) => console.error(e)
     });
   }
@@ -474,6 +612,7 @@ export class AdminDashboardComponent implements OnInit {
       location_id: h.location_id || 1,
       name: h.name,
       description: h.description || '',
+      dimensions: h.dimensions || '',
       availability_status: h.availability_status || 'AVAILABLE',
       occupied_till: h.occupied_till ? new Date(h.occupied_till).toISOString().split('T')[0] : null,
       latitude: h.latitude || '',
@@ -632,12 +771,7 @@ export class AdminDashboardComponent implements OnInit {
     this.showNotifications = false;
   }
   
-  resetFilters() {
-    this.filterLocationId = null;
-    this.filterStatus = null;
-    this.filterState = '';
-    this.filterDistrict = '';
-  }
+
 
   openStatusModal(hoarding: any) {
     this.statusUpdateData = {

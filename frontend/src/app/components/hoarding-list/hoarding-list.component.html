@@ -144,7 +144,7 @@
     <div class="card" *ngFor="let hoarding of hoardings">
       <!-- Image Section -->
       <div class="card-image">
-        <img [src]="hoarding.primary_image ? (backendUrl + hoarding.primary_image) : 'assets/placeholder.png'" alt="{{ hoarding.name }}" onerror="this.src='assets/placeholder.png'">
+        <img [src]="hoarding.primary_image ? (backendUrl + hoarding.primary_image) : 'assets/placeholder.png'" alt="{{ hoarding.name }}" onerror="this.onerror=null; this.src='assets/placeholder.png'">
         <div class="card-overlay"></div>
       </div>
 

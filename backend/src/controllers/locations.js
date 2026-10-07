@@ -2,11 +2,23 @@ const pool = require('../config/db');
 
 const getAll = async (req, res) => {
   try {
-    const [rows] = await pool.query(`
-      SELECT * 
-      FROM locations 
-    `);
-    res.json({ success: true, data: rows });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 100000;
+    const offset = (page - 1) * limit;
+
+    const [countRows] = await pool.query('SELECT COUNT(*) as total FROM locations');
+    const total = countRows[0].total;
+
+    let query = 'SELECT * FROM locations ORDER BY id DESC';
+    const params = [];
+    
+    if (req.query.page || req.query.limit) {
+      query += ' LIMIT ? OFFSET ?';
+      params.push(limit, offset);
+    }
+
+    const [rows] = await pool.query(query, params);
+    res.json({ success: true, data: rows, total });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Internal server error' });

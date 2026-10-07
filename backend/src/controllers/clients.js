@@ -2,8 +2,23 @@ const pool = require('../config/db');
 
 const getAll = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT c.*, h.name as hoarding_name, h.occupied_till as hoarding_occupied_till, h.availability_status as hoarding_availability_status FROM clients c LEFT JOIN hoardings h ON c.hoarding_id = h.id');
-    res.json({ success: true, data: rows });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 100000; // default large number if not paginated
+    const offset = (page - 1) * limit;
+
+    const [countRows] = await pool.query('SELECT COUNT(*) as total FROM clients');
+    const total = countRows[0].total;
+
+    let query = 'SELECT c.*, h.name as hoarding_name, h.occupied_till as hoarding_occupied_till, h.availability_status as hoarding_availability_status, h.is_deleted as hoarding_is_deleted FROM clients c LEFT JOIN hoardings h ON c.hoarding_id = h.id ORDER BY c.id DESC';
+    const params = [];
+    
+    if (req.query.page || req.query.limit) {
+      query += ' LIMIT ? OFFSET ?';
+      params.push(limit, offset);
+    }
+
+    const [rows] = await pool.query(query, params);
+    res.json({ success: true, data: rows, total });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Internal server error' });

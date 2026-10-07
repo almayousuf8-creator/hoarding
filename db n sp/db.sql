@@ -36,7 +36,7 @@ CREATE TABLE `clients` (
   PRIMARY KEY (`id`),
   KEY `fk_client_hoarding` (`hoarding_id`),
   CONSTRAINT `fk_client_hoarding` FOREIGN KEY (`hoarding_id`) REFERENCES `hoardings` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -45,7 +45,7 @@ CREATE TABLE `clients` (
 
 LOCK TABLES `clients` WRITE;
 /*!40000 ALTER TABLE `clients` DISABLE KEYS */;
-INSERT INTO `clients` VALUES (22,'riju','riju@gmail.com','8899774425',NULL,'UNDER REVIEW','2026-10-05 11:52:58','2026-10-05 11:52:58',10,'enquiry');
+INSERT INTO `clients` VALUES (22,'riju','riju@gmail.com','8899774425',NULL,'ACTIVE','2026-10-05 11:52:58','2026-10-06 06:28:56',10,'enquiry'),(23,'Anusree','an@123.com','9882834567',NULL,'UNDER REVIEW','2026-10-06 04:51:41','2026-10-06 04:51:41',9,'emergency');
 /*!40000 ALTER TABLE `clients` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -65,9 +65,9 @@ CREATE TABLE `hoarding_images` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `hoarding_id` (`hoarding_id`),
-  CONSTRAINT `hoarding_images_ibfk_1` FOREIGN KEY (`hoarding_id`) REFERENCES `hoardings` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `hoarding_images_ibfk_1` (`hoarding_id`),
+  CONSTRAINT `hoarding_images_ibfk_1` FOREIGN KEY (`hoarding_id`) REFERENCES `hoardings` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -76,7 +76,7 @@ CREATE TABLE `hoarding_images` (
 
 LOCK TABLES `hoarding_images` WRITE;
 /*!40000 ALTER TABLE `hoarding_images` DISABLE KEYS */;
-INSERT INTO `hoarding_images` VALUES (1,9,'/uploads/1790248689169-386447831.jpg',1,'ACTIVE','2026-09-24 11:12:13','2026-09-24 11:18:09'),(2,10,'/uploads/1790313864035-353653663.jpg',1,'ACTIVE','2026-09-25 05:24:24','2026-09-25 05:24:24'),(3,11,'/uploads/1790314242368-617083242.jpg',1,'HIDDEN','2026-09-25 05:30:42','2026-10-05 10:30:17'),(4,12,'/uploads/1790314957957-56900834.png',1,'ACTIVE','2026-09-25 05:42:37','2026-09-25 05:42:37'),(5,13,'/uploads/1790595537332-870649019.jpg',1,'ACTIVE','2026-09-28 11:38:57','2026-09-28 11:38:57'),(6,9,'/uploads/1790833576923-444550553.png',2,'ACTIVE','2026-10-01 05:46:16','2026-10-01 05:46:16'),(7,10,'/uploads/1790849930803-516614087.png',2,'HIDDEN','2026-10-01 10:18:50','2026-10-01 10:19:11'),(8,10,'/uploads/1790850622804-595498967.png',3,'ACTIVE','2026-10-01 10:30:22','2026-10-01 10:30:22'),(9,11,'/uploads/1791196586363-842735336.jpg',2,'ACTIVE','2026-10-05 10:36:26','2026-10-05 10:36:26'),(10,14,'/uploads/1791199360955-872097244.jpg',1,'ACTIVE','2026-10-05 11:22:40','2026-10-05 11:22:40');
+INSERT INTO `hoarding_images` VALUES (1,9,'/uploads/1790248689169-386447831.jpg',1,'ACTIVE','2026-09-24 11:12:13','2026-09-24 11:18:09'),(2,10,'/uploads/1790313864035-353653663.jpg',1,'ACTIVE','2026-09-25 05:24:24','2026-09-25 05:24:24'),(3,11,'/uploads/1790314242368-617083242.jpg',1,'HIDDEN','2026-09-25 05:30:42','2026-10-05 10:30:17'),(4,12,'/uploads/1790314957957-56900834.png',1,'ACTIVE','2026-09-25 05:42:37','2026-09-25 05:42:37'),(5,13,'/uploads/1790595537332-870649019.jpg',1,'ACTIVE','2026-09-28 11:38:57','2026-09-28 11:38:57'),(6,9,'/uploads/1790833576923-444550553.png',2,'ACTIVE','2026-10-01 05:46:16','2026-10-01 05:46:16'),(7,10,'/uploads/1790849930803-516614087.png',2,'HIDDEN','2026-10-01 10:18:50','2026-10-01 10:19:11'),(8,10,'/uploads/1790850622804-595498967.png',3,'ACTIVE','2026-10-01 10:30:22','2026-10-01 10:30:22'),(9,11,'/uploads/1791196586363-842735336.jpg',2,'ACTIVE','2026-10-05 10:36:26','2026-10-05 10:36:26'),(11,15,'/uploads/1791269254782-202005547.png',1,'ACTIVE','2026-10-06 06:47:34','2026-10-06 06:47:34'),(12,15,'/uploads/1791269254809-219101767.png',2,'ACTIVE','2026-10-06 06:47:34','2026-10-06 06:47:34'),(13,17,'/uploads/1791271003244-25106076.jpg',1,'ACTIVE','2026-10-06 07:16:43','2026-10-06 07:16:43'),(14,17,'/uploads/1791271003249-864868265.jpg',2,'ACTIVE','2026-10-06 07:16:43','2026-10-06 07:16:43');
 /*!40000 ALTER TABLE `hoarding_images` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -103,10 +103,11 @@ CREATE TABLE `hoardings` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `state` varchar(255) DEFAULT '',
   `district` varchar(255) DEFAULT '',
+  `is_deleted` tinyint DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `location_id` (`location_id`),
   CONSTRAINT `hoardings_ibfk_1` FOREIGN KEY (`location_id`) REFERENCES `locations` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -115,7 +116,7 @@ CREATE TABLE `hoardings` (
 
 LOCK TABLES `hoardings` WRITE;
 /*!40000 ALTER TABLE `hoardings` DISABLE KEYS */;
-INSERT INTO `hoardings` VALUES (9,1,'Kakkanad Billboard','kakkand high attention area.','20-24ft','OCCUPIED','2026-10-08',10.00100000,80.12330000,'https://www.google.com/maps/search/?api=1&query=Kakkanad%2C+Ernakulam%2C+Kerala&utm_source=chatgpt.com','ACTIVE','2026-09-24 11:07:11','2026-10-05 11:37:02','kerala','Ernakulam'),(10,3,'KK highway board','center focus, maximum visibility.Multiple view points','12 × 24 ft','AVAILABLE',NULL,10.00100000,76.32300000,'https://maps.app.goo.gl/NfrmE2B7Spacujqz5?g_st=aw','ACTIVE','2026-09-25 05:24:24','2026-10-05 11:30:50','kerala','kozhikode'),(11,4,'Thrissur Center','center of focus from all direction.','','OCCUPIED','2026-10-10',10.52823529,76.21627711,'https://www.google.com/maps/search/?api=1&query=Swaraj+Round%2C+Thrissur%2C+Kerala&utm_source=chatgpt.com','ACTIVE','2026-09-25 05:30:42','2026-10-05 11:37:15','kerala','Thrissur'),(12,5,'lulu branding board','Located near LuLu Mall, Edappally, this premium hoarding offers excellent visibility in one of Kochi’s busiest commercial areas.','30 × 60 ft','AVAILABLE',NULL,11.00000000,80.12330000,'https://www.google.com/maps/search/?api=1&query=Lulu+Mall%2C+Edappally%2C+Ernakulam%2C+Kerala&utm_source=chatgpt.com','ACTIVE','2026-09-25 05:42:37','2026-10-03 11:35:39','kerala','Ernakulam'),(13,6,'Kannur highlight','center of junction. Maximum Attention .','30 × 60 ft','AVAILABLE',NULL,10.52823529,76.21627711,'https://maps.app.goo.gl/NfrmE2B7Spacujqz5?g_st=aw','ACTIVE','2026-09-28 11:38:57','2026-10-03 11:36:07','Kerala','Kannur'),(14,12,'Chennai Central','Mutiple view points.Traffic attention','24-30ft','AVAILABLE',NULL,10.52823529,80.12330000,' https://share.google/OdOSqjyHDKyoUlfJQ','ACTIVE','2026-10-05 11:22:40','2026-10-05 11:22:40','Tamil Nadu','Chennai');
+INSERT INTO `hoardings` VALUES (9,1,'Kakkanad Billboard','kakkand high attention area.','20-24ft','OCCUPIED','2026-10-08',10.00100000,80.12330000,'https://www.google.com/maps/search/?api=1&query=Kakkanad%2C+Ernakulam%2C+Kerala&utm_source=chatgpt.com','ACTIVE','2026-09-24 11:07:11','2026-10-05 11:37:02','kerala','Ernakulam',0),(10,3,'KK highway board','center focus, maximum visibility.Multiple view points','12 × 24 ft','AVAILABLE',NULL,10.00100000,76.32300000,'https://maps.app.goo.gl/NfrmE2B7Spacujqz5?g_st=aw','ACTIVE','2026-09-25 05:24:24','2026-10-06 06:29:05','kerala','kozhikode',0),(11,4,'Thrissur Center','center of focus from all direction.','','OCCUPIED','2026-10-10',10.52823529,76.21627711,'https://www.google.com/maps/search/?api=1&query=Swaraj+Round%2C+Thrissur%2C+Kerala&utm_source=chatgpt.com','ACTIVE','2026-09-25 05:30:42','2026-10-05 11:37:15','kerala','Thrissur',0),(12,5,'lulu branding board','Located near LuLu Mall, Edappally, this premium hoarding offers excellent visibility in one of Kochi’s busiest commercial areas.','30 × 60 ft','AVAILABLE',NULL,11.00000000,80.12330000,'https://www.google.com/maps/search/?api=1&query=Lulu+Mall%2C+Edappally%2C+Ernakulam%2C+Kerala&utm_source=chatgpt.com','ACTIVE','2026-09-25 05:42:37','2026-10-03 11:35:39','kerala','Ernakulam',0),(13,6,'Kannur highlight','center of junction. Maximum Attention .','30 × 60 ft','AVAILABLE',NULL,10.52823529,76.21627711,'https://maps.app.goo.gl/NfrmE2B7Spacujqz5?g_st=aw','ACTIVE','2026-09-28 11:38:57','2026-10-03 11:36:07','Kerala','Kannur',0),(15,1,'q','','','AVAILABLE',NULL,NULL,NULL,NULL,'ACTIVE','2026-10-06 06:47:34','2026-10-06 07:15:29','a','q',1),(16,1,'','','','OCCUPIED','2026-10-07',NULL,NULL,NULL,'ACTIVE','2026-10-06 06:59:49','2026-10-06 07:14:52','ss','',1),(17,5,'test','test','20-10ft','AVAILABLE',NULL,10.00100000,80.12330000,'https://maps.app.goo.gl/NfrmE2B7Spacujqz5?g_st=aw','ACTIVE','2026-10-06 07:16:43','2026-10-06 07:18:42','kerala','Ernakulam',1);
 /*!40000 ALTER TABLE `hoardings` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -219,4 +220,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-10-05 17:29:22
+-- Dump completed on 2026-10-06 12:59:31

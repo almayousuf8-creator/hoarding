@@ -166,7 +166,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let h of filteredHoardings">
+              <tr *ngFor="let h of paginatedFilteredHoardings">
                 <td>
                   <img *ngIf="h.primary_image" [src]="backendUrl + h.primary_image" class="td-img" style="object-fit: cover;" />
                   <div *ngIf="!h.primary_image" class="td-img"></div>
@@ -184,6 +184,16 @@
               </tr>
             </tbody>
           </table>
+          <div *ngIf="filteredHoardings.length > 0" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 10px;">
+            <div style="font-size: 13px; color: #64748b;">
+              Showing {{ (hoardingsCurrentPage - 1) * hoardingsItemsPerPage + 1 }} to {{ (hoardingsCurrentPage * hoardingsItemsPerPage) > filteredHoardings.length ? filteredHoardings.length : (hoardingsCurrentPage * hoardingsItemsPerPage) }} of {{ filteredHoardings.length }} entries
+            </div>
+            <div style="display: flex; gap: 4px; align-items: center;">
+              <button class="pagination-btn" [disabled]="hoardingsCurrentPage === 1" (click)="prevHoardingsPage()"><i class='bx bx-chevron-left'></i></button>
+              <button *ngFor="let p of hoardingsPagesArray" class="pagination-btn" [ngClass]="{'active': p === hoardingsCurrentPage}" (click)="goToHoardingsPage(p)">{{ p }}</button>
+              <button class="pagination-btn" [disabled]="hoardingsCurrentPage === totalHoardingPages" (click)="nextHoardingsPage()"><i class='bx bx-chevron-right'></i></button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -290,11 +300,16 @@
                 </td>
                 <td style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                   <button *ngIf="c.hoarding_name" type="button" class="btn-sm" style="padding: 4px 10px; font-size: 11px; border-radius: 4px; border: 1px solid #d1d5db; background: #f3f4f6; color: #374151; font-weight: 500; cursor: pointer;" (click)="openConfirmBookingModal(c)">Update</button>
-                  <span class="text-green" [style.color]="c.status === 'ACTIVE' ? '#10b981' : (c.status === 'UNDER REVIEW' ? '#f59e0b' : '#ef4444')" style="font-weight: 600;">{{ c.status | titlecase }}</span>
-                  <span *ngIf="c.status === 'ACTIVE' && c.hoarding_availability_status === 'AVAILABLE'"
-                    title="The booked hoarding is now marked as Available"
+                  <span *ngIf="!(c.status === 'ACTIVE' && c.hoarding_availability_status === 'AVAILABLE' && c.hoarding_is_deleted !== 1)" class="text-green" [style.color]="c.status === 'ACTIVE' ? '#10b981' : (c.status === 'UNDER REVIEW' ? '#f59e0b' : '#ef4444')" style="font-weight: 600;">{{ c.status | titlecase }}</span>
+                  <span *ngIf="c.hoarding_name && c.hoarding_is_deleted === 1"
+                    title="The requested hoarding has been deleted"
                     style="background:#fef2f2; color:#dc2626; border:1px solid #fca5a5; border-radius:4px; padding:2px 8px; font-size:11px; font-weight:600; white-space:nowrap;">
                     ⚠ Hoarding Unavailable
+                  </span>
+                  <span *ngIf="c.status === 'ACTIVE' && c.hoarding_availability_status === 'AVAILABLE' && c.hoarding_is_deleted !== 1"
+                    title="The booking has expired or the hoarding was manually marked available"
+                    style="background:#eef2ff; color:#4338ca; border:1px dashed #a5b4fc; border-radius:6px; padding:3px 8px; font-size:11px; font-weight:500; white-space:nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                    <i class='bx bx-info-circle'></i> Booking Ended
                   </span>
                 </td>
                 <td class="actions">
@@ -305,6 +320,16 @@
               </tr>
             </tbody>
           </table>
+          <div *ngIf="totalClientsCount > 0" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 10px;">
+            <div style="font-size: 13px; color: #64748b;">
+              Showing {{ (clientsCurrentPage - 1) * clientsItemsPerPage + 1 }} to {{ (clientsCurrentPage * clientsItemsPerPage) > totalClientsCount ? totalClientsCount : (clientsCurrentPage * clientsItemsPerPage) }} of {{ totalClientsCount }} entries
+            </div>
+            <div style="display: flex; gap: 4px; align-items: center;">
+              <button class="pagination-btn" [disabled]="clientsCurrentPage === 1" (click)="prevClientsPage()"><i class='bx bx-chevron-left'></i></button>
+              <button *ngFor="let p of clientsPagesArray" class="pagination-btn" [ngClass]="{'active': p === clientsCurrentPage}" (click)="goToClientsPage(p)">{{ p }}</button>
+              <button class="pagination-btn" [disabled]="clientsCurrentPage === totalClientPages" (click)="nextClientsPage()"><i class='bx bx-chevron-right'></i></button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -388,10 +413,7 @@
                 <span class="info-label"><i class='bx bx-phone' style="margin-right: 6px; font-size: 18px; vertical-align: middle;"></i>Phone</span>
                 <span class="info-value">{{ viewingClient.phone || 'N/A' }}</span>
               </div>
-              <div class="info-item">
-                <span class="info-label"><i class='bx bx-map' style="margin-right: 6px; font-size: 18px; vertical-align: middle;"></i>Address</span>
-                <span class="info-value" style="white-space: pre-wrap;">{{ viewingClient.address || 'N/A' }}</span>
-              </div>
+
               <div class="info-item">
                 <span class="info-label"><i class='bx bx-target-lock' style="margin-right: 6px; font-size: 18px; vertical-align: middle;"></i>Interested In</span>
                 <span class="info-value">
@@ -406,7 +428,6 @@
               <div class="info-item" *ngIf="viewingClient.hoarding_occupied_till">
                 <span class="info-label"><i class='bx bx-calendar-check' style="margin-right: 6px; font-size: 18px; vertical-align: middle;"></i>Occupied Till</span>
                 <span class="info-value">{{ viewingClient.hoarding_occupied_till | date:'dd MMM yyyy' }}</span>
->>>>>>> Stashed changes
               </div>
             </div>
           </div>
@@ -424,25 +445,29 @@
             <p style="margin-bottom: 20px; color: #4b5563; font-size: 14px;">
               Update booking status for <strong>{{ confirmBookingData.hoardingName || 'Lead' }}</strong>.
             </p>
+            <div *ngIf="confirmBookingData.isDeleted" style="background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 13px;">
+              <i class='bx bx-error-circle' style="vertical-align: middle; margin-right: 5px; font-size: 16px;"></i>
+              <strong>Warning:</strong> This hoarding has been deleted from the system and cannot be booked.
+            </div>
             <div *ngIf="confirmBookingData.isOccupied" style="background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 13px;">
               <i class='bx bx-error-circle' style="vertical-align: middle; margin-right: 5px; font-size: 16px;"></i>
-              <strong>Warning:</strong> This hoarding is already occupied until <strong>{{ confirmBookingData.hoardingOccupiedTill | date:'dd MMM yyyy' }}</strong>. Confirming a new booking will replace it.
+              <strong>Warning:</strong> This hoarding is already occupied until <strong>{{ confirmBookingData.hoardingOccupiedTill | date:'dd MMM yyyy' }}</strong>. Can book after the till date.
             </div>
             <form (ngSubmit)="submitConfirmBooking()">
               <div class="form-group full-width" style="margin-bottom: 20px;">
                 <label>Action *</label>
-                <select name="action" [(ngModel)]="confirmBookingData.action" required style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+                <select name="action" [(ngModel)]="confirmBookingData.action" required style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" [disabled]="confirmBookingData.isUnavailable">
                   <option value="confirm">Confirm Booking</option>
                   <option value="review">Under Review</option>
                 </select>
               </div>
               <div class="form-group full-width" *ngIf="confirmBookingData.action === 'confirm'" style="margin-bottom: 20px;">
                 <label>Occupied Till *</label>
-                <input type="date" name="occupied_till" [(ngModel)]="confirmBookingData.occupied_till" required style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+                <input type="date" name="occupied_till" [(ngModel)]="confirmBookingData.occupied_till" required style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;" [disabled]="confirmBookingData.isUnavailable">
               </div>
               <div style="display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" (click)="closeConfirmBookingModal()" style="padding: 8px 15px; border: 1px solid #d1d5db; background: transparent; border-radius: 4px; cursor: pointer;">Cancel</button>
-                <button type="submit" class="action-btn-green" style="padding: 8px 15px;">Submit</button>
+                <button type="submit" class="action-btn-green" style="padding: 8px 15px;" [disabled]="confirmBookingData.isUnavailable">Submit</button>
               </div>
             </form>
           </div>
@@ -456,34 +481,54 @@
           <button class="action-btn-green" (click)="openLocationModal()"><i class='bx bx-plus'></i> Add Location</button>
         </div>
         <div class="panel table-panel">
+          <div class="filters-row">
+            <select [(ngModel)]="locationFilterState" (ngModelChange)="onLocationStateFilterChange()" style="padding: 8px 15px; border-radius: 6px; border: 1px solid #d1d5db; outline: none; width: 140px;">
+              <option value="">All States</option>
+              <option *ngFor="let state of uniqueStates" [value]="state">{{ state }}</option>
+            </select>
+            <select [(ngModel)]="locationFilterDistrict" style="padding: 8px 15px; border-radius: 6px; border: 1px solid #d1d5db; outline: none; width: 150px;">
+              <option value="">All Districts</option>
+              <option *ngFor="let district of uniqueLocationDistricts" [value]="district">{{ district }}</option>
+            </select>
+            <button class="action-btn-green" (click)="resetLocationFilters()" style="padding: 8px; border-radius: 4px; display: flex; align-items: center; justify-content: center; height: 38px; width: 38px; min-width: 38px;" title="Reset Filters">
+              <i class='bx bx-refresh' style="font-size: 22px; margin: 0;"></i>
+            </button>
+          </div>
           <table class="data-table">
             <thead>
               <tr>
                 <th>ID</th>
                 <th>Location Name</th>
-                
-                
+                <th>State</th>
+                <th>District</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th style="text-align: center;">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let l of locations">
+              <tr *ngFor="let l of paginatedLocations">
                 <td>{{ l.id }}</td>
                 <td>{{ l.name }}</td>
-                
-                
+                <td>{{ l.state || '-' }}</td>
+                <td>{{ l.district || '-' }}</td>
                 <td><span class="text-green" [style.color]="l.status === 'ACTIVE' ? '#10b981' : '#ef4444'">{{ l.status | titlecase }}</span></td>
-                <td class="actions">
-                  <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-                    <i class='bx bxs-show action-icon view' (click)="viewLocation(l)" title="View"></i>
-                    <i class='bx bxs-pencil action-icon edit' (click)="openLocationModal(l)" title="Edit"></i> 
-                    <i class='bx bxs-trash-alt action-icon delete' (click)="deleteLocation(l.id)" title="Delete"></i>
-                  </div>
+                <td class="actions" style="text-align: center;">
+                  <i class='bx bxs-pencil action-icon edit' (click)="openLocationModal(l)" title="Edit" style="margin-right: 8px;"></i> 
+                  <i class='bx bxs-trash-alt action-icon delete' (click)="deleteLocation(l.id)" title="Delete"></i>
                 </td>
               </tr>
             </tbody>
           </table>
+          <div *ngIf="locations.length > 0" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 10px;">
+            <div style="font-size: 13px; color: #64748b;">
+              Showing {{ (locationsCurrentPage - 1) * locationsItemsPerPage + 1 }} to {{ (locationsCurrentPage * locationsItemsPerPage) > locations.length ? locations.length : (locationsCurrentPage * locationsItemsPerPage) }} of {{ locations.length }} entries
+            </div>
+            <div style="display: flex; gap: 4px; align-items: center;">
+              <button class="pagination-btn" [disabled]="locationsCurrentPage === 1" (click)="prevLocationsPage()"><i class='bx bx-chevron-left'></i></button>
+              <button *ngFor="let p of locationsPagesArray" class="pagination-btn" [ngClass]="{'active': p === locationsCurrentPage}" (click)="goToLocationsPage(p)">{{ p }}</button>
+              <button class="pagination-btn" [disabled]="locationsCurrentPage === totalLocationPages" (click)="nextLocationsPage()"><i class='bx bx-chevron-right'></i></button>
+            </div>
+          </div>
         </div>
       </div>
 

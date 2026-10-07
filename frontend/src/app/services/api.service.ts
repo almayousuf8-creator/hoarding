@@ -50,8 +50,11 @@ export class ApiService {
     return this.http.delete(`${this.apiUrl}/districts/${id}`);
   }
 
-  getClients(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/clients`);
+  getClients(page?: number, limit?: number): Observable<any> {
+    let params = new HttpParams();
+    if (page) params = params.set('page', page.toString());
+    if (limit) params = params.set('limit', limit.toString());
+    return this.http.get(`${this.apiUrl}/clients`, { params });
   }
   createClient(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/clients`, data);
@@ -69,11 +72,13 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/clients/${clientId}/confirm-booking`, data);
   }
 
-  getLocations(districtId?: number): Observable<any> {
+  getLocations(districtId?: number, page?: number, limit?: number): Observable<any> {
     let params = new HttpParams();
     if (districtId) {
       params = params.set('districtId', districtId.toString());
     }
+    if (page) params = params.set('page', page.toString());
+    if (limit) params = params.set('limit', limit.toString());
     return this.http.get(`${this.apiUrl}/locations`, { params });
   }
   createLocation(data: any): Observable<any> {
@@ -86,11 +91,13 @@ export class ApiService {
     return this.http.delete(`${this.apiUrl}/locations/${id}`);
   }
 
-  getHoardings(locationId?: number): Observable<any> {
+  getHoardings(locationId?: number, page?: number, limit?: number): Observable<any> {
     let params = new HttpParams();
     if (locationId) {
       params = params.set('locationId', locationId.toString());
     }
+    if (page) params = params.set('page', page.toString());
+    if (limit) params = params.set('limit', limit.toString());
     return this.http.get(`${this.apiUrl}/hoardings`, { params });
   }
 

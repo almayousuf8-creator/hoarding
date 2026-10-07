@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 const router = Router();
 
-router.post('/:hoardingId', authenticate, upload.array('images', 10), uploadImages);
+router.post('/:hoardingId', authenticate, upload.any(), uploadImages);
 router.get('/:hoardingId', getImages);
 router.delete('/:imageId', authenticate, deleteImage);
 
