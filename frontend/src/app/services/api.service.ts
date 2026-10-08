@@ -21,7 +21,7 @@ export class ApiService {
   }
 
   getStates(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/states`);
+    return this.http.get(`${this.apiUrl}/states`, { params: new HttpParams().set('_t', Date.now().toString()) });
   }
   createState(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/states`, data);
@@ -34,7 +34,7 @@ export class ApiService {
   }
 
   getDistricts(stateId?: number): Observable<any> {
-    let params = new HttpParams();
+    let params = new HttpParams().set('_t', Date.now().toString());
     if (stateId) {
       params = params.set('stateId', stateId.toString());
     }
@@ -51,7 +51,7 @@ export class ApiService {
   }
 
   getClients(page?: number, limit?: number): Observable<any> {
-    let params = new HttpParams();
+    let params = new HttpParams().set('_t', Date.now().toString());
     if (page) params = params.set('page', page.toString());
     if (limit) params = params.set('limit', limit.toString());
     return this.http.get(`${this.apiUrl}/clients`, { params });
@@ -73,7 +73,7 @@ export class ApiService {
   }
 
   getLocations(districtId?: number, page?: number, limit?: number): Observable<any> {
-    let params = new HttpParams();
+    let params = new HttpParams().set('_t', Date.now().toString());
     if (districtId) {
       params = params.set('districtId', districtId.toString());
     }
@@ -92,7 +92,7 @@ export class ApiService {
   }
 
   getHoardings(locationId?: number, page?: number, limit?: number): Observable<any> {
-    let params = new HttpParams();
+    let params = new HttpParams().set('_t', Date.now().toString());
     if (locationId) {
       params = params.set('locationId', locationId.toString());
     }
@@ -102,7 +102,7 @@ export class ApiService {
   }
 
   getHoardingById(id: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/hoardings/${id}`);
+    return this.http.get(`${this.apiUrl}/hoardings/${id}`, { params: new HttpParams().set('_t', Date.now().toString()) });
   }
 
   createHoarding(data: FormData): Observable<any> {
@@ -121,7 +121,8 @@ export class ApiService {
     return this.http.patch(`${this.apiUrl}/hoardings/${id}/availability`, data, { headers: this.getHeaders() });
   }
   getLeads(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/leads`, { headers: this.getHeaders() });
+    let headers = this.getHeaders();
+    return this.http.get(`${this.apiUrl}/leads`, { headers, params: new HttpParams().set('_t', Date.now().toString()) });
   }
 
   submitLead(data: any): Observable<any> {
@@ -137,7 +138,7 @@ export class ApiService {
   }
 
   getHoardingImages(hoardingId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/images/${hoardingId}`);
+    return this.http.get(`${this.apiUrl}/images/${hoardingId}`, { params: new HttpParams().set('_t', Date.now().toString()) });
   }
 
   deleteHoardingImage(imageId: number): Observable<any> {

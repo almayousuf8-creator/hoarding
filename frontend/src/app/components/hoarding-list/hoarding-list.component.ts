@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
@@ -18,7 +18,8 @@ import { FooterComponent } from '../footer/footer.component';
   templateUrl: './hoarding-list.component.html',
   styleUrls: ['./hoarding-list.component.css']
 })
-export class HoardingListComponent implements OnInit {
+export class HoardingListComponent implements OnInit, OnDestroy {
+  private pollInterval: any;
   locations: any[] = [];
   hoardings: any[] = [];
 
@@ -41,6 +42,18 @@ export class HoardingListComponent implements OnInit {
   ngOnInit() {
     this.loadLocations();
     this.loadHoardings();
+    
+    // Auto refresh data every 5 seconds
+    this.pollInterval = setInterval(() => {
+      this.loadLocations();
+      this.loadHoardings();
+    }, 5000);
+  }
+
+  ngOnDestroy() {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+    }
   }
 
   scrollTo(id: string) {

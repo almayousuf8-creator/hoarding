@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -14,9 +14,11 @@ import { ChangeDetectorRef } from '@angular/core';
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css'
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, OnDestroy {
   activeTab: string = 'overview';
   backendUrl = environment.apiUrl;
+  
+  private pollInterval: any;
   
   hoardings: any[] = [];
   editingHoardingId: number | null = null;
@@ -179,6 +181,20 @@ export class AdminDashboardComponent implements OnInit {
     this.fetchClients();
     this.fetchLocations();
     this.fetchLeads();
+    
+    // Auto-refresh polling every 5 seconds
+    this.pollInterval = setInterval(() => {
+      this.fetchHoardings();
+      this.fetchClients();
+      this.fetchLocations();
+      this.fetchLeads();
+    }, 5000);
+  }
+
+  ngOnDestroy() {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
+    }
   }
 
   fetchLeads() {
