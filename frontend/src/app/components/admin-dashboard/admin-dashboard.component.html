@@ -289,7 +289,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let c of clients">
+              <tr *ngFor="let c of paginatedClients">
                 <td>{{ c.id }}</td>
                 <td><a href="javascript:void(0)" (click)="viewClient(c)" style="color: #3b82f6; text-decoration: underline; font-weight: 500;">{{ c.name }}</a></td>
                 <td>{{ c.phone }}</td>

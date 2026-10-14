@@ -388,11 +388,14 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
 
+  backendPaginatesClients = false;
+
   // --- Clients Methods ---
   fetchClients() {
     this.apiService.getClients(this.clientsCurrentPage, this.clientsItemsPerPage).subscribe({
       next: (res) => { 
         if (res.success) {
+          this.backendPaginatesClients = res.total !== undefined;
           this.clients = res.data;
           this.totalClientsCount = res.total !== undefined ? res.total : res.data.length;
           this.cdr.detectChanges();
@@ -400,6 +403,14 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       },
       error: (e) => console.error(e)
     });
+  }
+
+  get paginatedClients() {
+    if (this.backendPaginatesClients) {
+      return this.clients;
+    }
+    const startIndex = (this.clientsCurrentPage - 1) * this.clientsItemsPerPage;
+    return this.clients.slice(startIndex, startIndex + this.clientsItemsPerPage);
   }
 
   viewClient(client: any) {

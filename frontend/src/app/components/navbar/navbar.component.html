@@ -2,15 +2,20 @@
   <div class="logo" routerLink="/" style="cursor: pointer;">
     <img src="https://maxplusmedia.com/wp-content/uploads/2026/01/logo.png" alt="Max Plus Media" style="height: 55px; width: auto;">
   </div>
-  <div class="center-links">
-    <a routerLink="/" class="active" style="cursor: pointer;">HOME</a>
-    <a style="cursor: pointer;">ABOUT US</a>
-    <a style="cursor: pointer;">SERVICES</a>
-    <a style="cursor: pointer;">PROJECTS</a>
-    <a style="cursor: pointer;">CLIENTS</a>
-    <a style="cursor: pointer;">CONTACT</a>
+
+  <button class="mobile-toggle" (click)="toggleMenu()">
+    <i class='bx' [ngClass]="isMenuOpen ? 'bx-x' : 'bx-menu'"></i>
+  </button>
+
+  <div class="center-links" [class.active]="isMenuOpen">
+    <a routerLink="/" class="active" style="cursor: pointer;" (click)="isMenuOpen = false">HOME</a>
+    <a style="cursor: pointer;" (click)="isMenuOpen = false">ABOUT US</a>
+    <a style="cursor: pointer;" (click)="isMenuOpen = false">SERVICES</a>
+    <a style="cursor: pointer;" (click)="isMenuOpen = false">PROJECTS</a>
+    <a style="cursor: pointer;" (click)="isMenuOpen = false">CLIENTS</a>
+    <a style="cursor: pointer;" (click)="isMenuOpen = false">CONTACT</a>
   </div>
-  <div class="right-links">
+  <div class="right-links" [class.active]="isMenuOpen">
     <button class="nav-cta-btn">
       LET'S TALK
       <i class='bx bx-right-arrow-alt'></i>

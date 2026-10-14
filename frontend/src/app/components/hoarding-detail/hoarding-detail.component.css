@@ -536,7 +536,9 @@
   }
 
   .gallery-panel {
-    height: 380px;
+    height: 300px;
+    min-height: 300px;
+    flex: none; /* Prevents flex from collapsing the height */
     border-radius: 12px;
   }
 
